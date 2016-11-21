@@ -40,19 +40,19 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-QList<std::tuple<int, int>> MainWindow::getFilterSelectorsOrder(int start = 0, int end = -1)
+QList<QPair<int, int> > MainWindow::getFilterSelectorsOrder(int start = 0, int end = -1)
 {
-    QList<std::tuple<int, int>> filtersInfo;
+    QList<QPair<int, int> > filtersInfo;
     if(end == -1)
         end = ui->horizontalLayout->count() - 1;
 
     for(int i = start; i <= end; ++i)
     {
-        auto o = ui->horizontalLayout->itemAt(i)->widget();
-        auto group = o->property("group").toInt();
-        auto type = o->property("type").toInt();
+        QWidget* o = ui->horizontalLayout->itemAt(i)->widget();
+        int group = o->property("group").toInt();
+        int type = o->property("type").toInt();
 
-        filtersInfo.push_back(std::make_tuple(group, type));
+        filtersInfo.push_back(qMakePair(group, type));
     }
 
     return filtersInfo;
@@ -123,24 +123,7 @@ MainWindow::MainWindow(QWidget *parent) :
     DeckRunning=false;
 
     draggableBehaviour = new DraggableChildrenBehaviour(ui->horizontalLayout);
-    connect(draggableBehaviour, &DraggableChildrenBehaviour::childPositionChanged, [&](QWidget* child, int oldPos, int newPos) {
-
-        Q_UNUSED(child);
-
-        int start = oldPos;
-        int end = newPos;
-
-        if(oldPos > newPos)
-        {
-            start = newPos;
-            end = oldPos;
-        }
-
-        QList<std::tuple<int, int>> filtersSelectors = getFilterSelectorsOrder();
-
-        if(PlotsArea)
-            PlotsArea->changeOrder(filtersSelectors);
-    });
+    connect(draggableBehaviour, SIGNAL(childPositionChanged(QWidget*, int, int)), this, SLOT(positionChanged(QWidget*, int, int)));
 }
 
 //---------------------------------------------------------------------------
@@ -815,6 +798,26 @@ void MainWindow::updateSignalServerUploadStatus()
 void MainWindow::updateSignalServerUploadProgress(qint64 value, qint64 total)
 {
     ui->actionSignalServer_status->setText(QString("Uploading: %1 / %2").arg(value).arg(total));
+
+}
+
+void MainWindow::positionChanged(QWidget* child, int oldPos, int newPos)
+{
+    Q_UNUSED(child);
+
+    int start = oldPos;
+    int end = newPos;
+
+    if(oldPos > newPos)
+    {
+        start = newPos;
+        end = oldPos;
+    }
+
+    QList<QPair<int, int> > filtersSelectors = getFilterSelectorsOrder();
+
+    if(PlotsArea)
+        PlotsArea->changeOrder(filtersSelectors);
 }
 
 void MainWindow::on_actionNavigateNextComment_triggered()
@@ -822,8 +825,8 @@ void MainWindow::on_actionNavigateNextComment_triggered()
     if (getFilesCurrentPos()>=Files.size())
         return;
 
-    auto framesCount = Files[getFilesCurrentPos()]->Glue->VideoFrameCount_Get();
-    auto currentPos = Files[getFilesCurrentPos()]->Frames_Pos_Get();
+    size_t framesCount = Files[getFilesCurrentPos()]->Glue->VideoFrameCount_Get();
+    int currentPos = Files[getFilesCurrentPos()]->Frames_Pos_Get();
     while(++currentPos < framesCount)
     {
         if(Files[getFilesCurrentPos()]->ReferenceStat()->comments[currentPos])
@@ -840,7 +843,7 @@ void MainWindow::on_actionNavigatePreviousComment_triggered()
     if (getFilesCurrentPos()>=Files.size())
         return;
 
-    auto currentPos = Files[getFilesCurrentPos()]->Frames_Pos_Get();
+    int currentPos = Files[getFilesCurrentPos()]->Frames_Pos_Get();
     while(--currentPos >= 0)
     {
         if(Files[getFilesCurrentPos()]->ReferenceStat()->comments[currentPos])

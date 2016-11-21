@@ -1525,17 +1525,17 @@ BigDisplay::BigDisplay(QWidget *parent, FileInformation* FileInformationData_) :
             }
         }
 
-        for(int i = 0; i < filtersGroups.length(); ++i)
+        for(int i = 0; i < filtersGroups.size(); ++i)
         {
             FiltersGroup & filterGroup = filtersGroups[i];
             qSort(filterGroup.begin(), filterGroup.end(), Sort::filterInfoLessThan);
 
-            for(FiltersGroup::const_iterator it = filterGroup.cbegin(); it != filterGroup.cend(); ++it)
+            for(FiltersGroup::const_iterator it = filterGroup.begin(); it != filterGroup.end(); ++it)
             {
                  Options[Pos].FiltersList->addItem(it->first, it->second);
             }
 
-            if(i != (filtersGroups.length() - 1))
+            if(i != (filtersGroups.size() - 1))
                 Options[Pos].FiltersList->insertSeparator(FiltersListDefault_Count);
         };
 
@@ -1589,7 +1589,7 @@ BigDisplay::BigDisplay(QWidget *parent, FileInformation* FileInformationData_) :
 
     Layout->addWidget(Slider, 2, 0, 1, 3);
 
-    plot = createCommentsPlot(FileInformationData_, nullptr);
+    plot = createCommentsPlot(FileInformationData_, NULL);
     plot->enableAxis(QwtPlot::yLeft, false);
     plot->enableAxis(QwtPlot::xBottom, true);
     plot->setAxisScale(QwtPlot::xBottom, Slider->minimum(), Slider->maximum());
@@ -2512,10 +2512,10 @@ void BigDisplay::updateSelection(int Pos, ImageLabel* image, options& opts)
             hIndex = 4;
         }
 
-        auto& xSpinBox = opts.Sliders_SpinBox[xIndex];
-        auto& ySpinBox = opts.Sliders_SpinBox[yIndex];
-        auto& wSpinBox = opts.Sliders_SpinBox[wIndex];
-        auto& hSpinBox = opts.Sliders_SpinBox[hIndex];
+        DoubleSpinBoxWithSlider& xSpinBox = opts.Sliders_SpinBox[xIndex];
+        DoubleSpinBoxWithSlider& ySpinBox = opts.Sliders_SpinBox[yIndex];
+        DoubleSpinBoxWithSlider& wSpinBox = opts.Sliders_SpinBox[wIndex];
+        DoubleSpinBoxWithSlider& hSpinBox = opts.Sliders_SpinBox[hIndex];
 
         image->setSelectionArea(xSpinBox->value(), ySpinBox->value(), wSpinBox->value(), hSpinBox->value());
 
@@ -2527,28 +2527,15 @@ void BigDisplay::updateSelection(int Pos, ImageLabel* image, options& opts)
         connect(wSpinBox, &DoubleSpinBoxWithSlider::controlValueChanged, image, &ImageLabel::changeSelectionWidth);
         connect(hSpinBox, &DoubleSpinBoxWithSlider::controlValueChanged, image, &ImageLabel::changeSelectionHeight);
 
-        connect(image, &ImageLabel::selectionChangeFinished, [&](const QRectF& geometry) {
-            qDebug() << "selectionChangeFinished: "
-                     << ", x: " << geometry.x() << ", y: " << geometry.y()
-                     << ", w: " << geometry.width() << ", h: " << geometry.height();
+        connect(image, SIGNAL(selectionChangeFinished(const QRectF&)), xSpinBox, SLOT(selectionChangeFinishedX(const QRectF&)));
+        connect(image, SIGNAL(selectionChangeFinished(const QRectF&)), ySpinBox, SLOT(selectionChangeFinishedY(const QRectF&)));
+        connect(image, SIGNAL(selectionChangeFinished(const QRectF&)), wSpinBox, SLOT(selectionChangeFinishedWidth(const QRectF&)));
+        connect(image, SIGNAL(selectionChangeFinished(const QRectF&)), hSpinBox, SLOT(selectionChangeFinishedHeight(const QRectF&)));
 
-            xSpinBox->applyValue(geometry.topLeft().x(), false);
-            ySpinBox->applyValue(geometry.topLeft().y(), false);
-            wSpinBox->applyValue(geometry.width(), false);
-            hSpinBox->applyValue(geometry.height(), false);
-
-        });
-
-        connect(image, &ImageLabel::selectionChanged, [&](const QRectF& geometry) {
-            qDebug() << "selectionChanged: "
-                     << ", x: " << geometry.x() << ", y: " << geometry.y()
-                     << ", w: " << geometry.width() << ", h: " << geometry.height();
-
-            xSpinBox->applyValue(geometry.x(), false);
-            ySpinBox->applyValue(geometry.y(), false);
-            wSpinBox->applyValue(geometry.width(), false);
-            hSpinBox->applyValue(geometry.height(), false);
-        });
+        connect(image, SIGNAL(selectionChanged(const QRectF&)), xSpinBox, SLOT(selectionChangedX(const QRectF&)));
+        connect(image, SIGNAL(selectionChanged(const QRectF&)), ySpinBox, SLOT(selectionChangedY(const QRectF&)));
+        connect(image, SIGNAL(selectionChanged(const QRectF&)), wSpinBox, SLOT(selectionChangedWidth(const QRectF&)));
+        connect(image, SIGNAL(selectionChanged(const QRectF&)), hSpinBox, SLOT(selectionChangedHeight(const QRectF&)));
     }
     else
     {
@@ -2697,4 +2684,50 @@ void BigDisplay::resizeEvent(QResizeEvent  *e)
     timer.start();
 
     qDebug() << "leaving BigDisplay::resizeEvent";
+}
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangedX(const QRectF& geometry)
+{
+    applyValue(geometry.x(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangedY(const QRectF& geometry)
+{
+    applyValue(geometry.y(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangedWidth(const QRectF& geometry)
+{
+    applyValue(geometry.width(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangedHeight(const QRectF& geometry){
+    applyValue(geometry.height(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangeFinishedX(const QRectF& geometry)
+{
+    applyValue(geometry.topLeft().x(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangeFinishedY(const QRectF& geometry)
+{
+    applyValue(geometry.topLeft().y(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangeFinishedWidth(const QRectF& geometry)
+{
+    applyValue(geometry.width(), false);
+}
+
+//---------------------------------------------------------------------------
+void DoubleSpinBoxWithSlider::selectionChangeFinishedHeight(const QRectF& geometry)
+{
+    applyValue(geometry.height(), false);
 }

@@ -137,7 +137,7 @@ int Cli::exec(QCoreApplication &a)
 
     Preferences prefs;
 
-    signalServer = std::unique_ptr<SignalServer>(new SignalServer());
+    signalServer = QSharedPointer<SignalServer>(new SignalServer());
 
     QString urlString = prefs.signalServerUrlString();
     if(!urlString.startsWith("http", Qt::CaseInsensitive))
@@ -245,7 +245,7 @@ int Cli::exec(QCoreApplication &a)
         std::cout << std::endl;
     }
 
-    info = std::unique_ptr<FileInformation>(new FileInformation(signalServer.get(), input, filters, prefs.activeAllTracks()));
+    info = QSharedPointer<FileInformation>(new FileInformation(signalServer.data(), input, filters, prefs.activeAllTracks()));
     info->setAutoCheckFileUploaded(false);
     info->setAutoUpload(false);
 
@@ -270,13 +270,12 @@ int Cli::exec(QCoreApplication &a)
     {
         // parse
 
-        progress = unique_ptr<ProgressBar>(new ProgressBar(0, 100, 50, "%"));
+        progress = QSharedPointer<ProgressBar>(new ProgressBar(0, 100, 50, "%"));
         progress->setValue(0);
-
         QObject::connect(&progressTimer, SIGNAL(timeout()), this, SLOT(updateParsingProgress()));
         progressTimer.start(500);
 
-        QObject::connect(info.get(), SIGNAL(parsingCompleted(bool)), &a, SLOT(quit()));
+        QObject::connect(info.data(), SIGNAL(parsingCompleted(bool)), &a, SLOT(quit()));
         info->startParse();
         a.exec();
 
@@ -292,16 +291,17 @@ int Cli::exec(QCoreApplication &a)
         // export
         std::cout << std::endl << "generating QCTools report... " << std::endl;
 
-        progress = unique_ptr<ProgressBar>(new ProgressBar(0, 100, 50, "%"));
+        progress = QSharedPointer<ProgressBar>(new ProgressBar(0, 100, 50, "%"));
         progress->setValue(0);
 
-        QObject::connect(info.get(), SIGNAL(statsFileGenerationProgress(quint64, quint64)), this, SLOT(onStatsFileGenerationProgress(quint64, quint64)));
-        QObject::connect(info.get(), SIGNAL(statsFileGenerated(SharedFile, const QString&)), &a, SLOT(quit()));
+        info->setExportFilters(filters);
+        QObject::connect(info.data(), SIGNAL(statsFileGenerationProgress(quint64, quint64)), this, SLOT(onStatsFileGenerationProgress(quint64, quint64)));
+        QObject::connect(info.data(), SIGNAL(statsFileGenerated(SharedFile, const QString&)), &a, SLOT(quit()));
         info->setExportFilters(filters);
         info->startExport(output);
         a.exec();
 
-        QObject::disconnect(info.get(), SIGNAL(statsFileGenerationProgress(quint64, quint64)), this, SLOT(onStatsFileGenerationProgress(quint64, quint64)));
+        QObject::disconnect(info.data(), SIGNAL(statsFileGenerationProgress(quint64, quint64)), this, SLOT(onStatsFileGenerationProgress(quint64, quint64)));
 
         std::cout << std::endl << "generating QCTools report... done" << std::endl;
     }
@@ -315,7 +315,7 @@ int Cli::exec(QCoreApplication &a)
     {
         std::cout << std::endl << "checking if " << output.toStdString() << " exists on signalserver side..." << std::endl;
 
-        QObject::connect(info.get(), SIGNAL(signalServerCheckUploadedStatusChanged()), &a, SLOT(quit()));
+        QObject::connect(info.data(), SIGNAL(signalServerCheckUploadedStatusChanged()), &a, SLOT(quit()));
         QString outputFileName = QFileInfo(output).fileName();
 
         info->checkFileUploaded(outputFileName);
@@ -335,11 +335,11 @@ int Cli::exec(QCoreApplication &a)
 
         if(info->signalServerCheckUploadedStatus() == FileInformation::NotUploaded || forceUploadToSignalServer)
         {
-            QObject::connect(info.get(), SIGNAL(signalServerUploadStatusChanged()), &a, SLOT(quit()));
-            QObject::connect(info.get(), SIGNAL(signalServerUploadProgressChanged(qint64, qint64)), this, SLOT(onSignalServerUploadProgressChanged(qint64, qint64)));
+            QObject::connect(info.data(), SIGNAL(signalServerUploadStatusChanged()), &a, SLOT(quit()));
+            QObject::connect(info.data(), SIGNAL(signalServerUploadProgressChanged(qint64, qint64)), this, SLOT(onSignalServerUploadProgressChanged(qint64, qint64)));
 
             std::cout << "uploading... " << std::endl;
-            progress = unique_ptr<ProgressBar>(new ProgressBar(0, 100, 50, "%"));
+            progress = QSharedPointer<ProgressBar>(new ProgressBar(0, 100, 50, "%"));
             progress->setValue(0);
 
             info->upload(output);

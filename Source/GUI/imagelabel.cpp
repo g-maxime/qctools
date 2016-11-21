@@ -30,33 +30,8 @@ ImageLabel::ImageLabel(FFmpeg_Glue** Picture_, size_t Pos_, QWidget *parent) :
 
     selectionArea = new SelectionArea(uilabel);
 
-    connect(selectionArea, &SelectionArea::geometryChangeFinished, this, [&]() {
-        Q_EMIT selectionChangeFinished(QRectF(selectionPos, selectionSize));
-    });
-
-    connect(selectionArea, &SelectionArea::geometryChanged, this, [&](const QRect& geometry) {
-        int scaledWidth = Pixmap.width();
-        int scaledHeight = Pixmap.height();
-
-        QRectF originalGeometry(geometry);
-
-        auto originalWidth = pictureWidth();
-        auto originalHeight = pictureHeight();
-
-        QSizeF size(originalGeometry.width() * originalWidth / scaledWidth,
-                    originalGeometry.height() * originalHeight / scaledHeight);
-
-        QPointF topLeft(originalGeometry.topLeft().x() * originalWidth / scaledWidth,
-                        originalGeometry.topLeft().y() * originalHeight / scaledHeight);
-
-        originalGeometry.setSize(size);
-        originalGeometry.moveTopLeft(topLeft);
-
-        selectionPos = originalGeometry.topLeft();
-        selectionSize = originalGeometry.size();
-
-        Q_EMIT selectionChanged(originalGeometry);
-    });
+    connect(selectionArea, SIGNAL(geometryChangeFinished()), this, SLOT(geometryChangeFinished()));
+    connect(selectionArea, SIGNAL(geometryChanged(const QRect&)), this, SLOT(geometryChanged(const QRect&)));
 
     uilabel->installEventFilter(this);
 }
@@ -80,9 +55,9 @@ void ImageLabel::setImage(const QImage& image)
     updatePixmap(image);
 }
 
-void ImageLabel::updatePixmap(const QImage& image /*= nullptr*/)
+void ImageLabel::updatePixmap(const QImage& image /*= NULL*/)
 {
-    if(*Picture == nullptr)
+    if(*Picture == NULL)
     {
         return;
     }
@@ -98,7 +73,7 @@ void ImageLabel::updatePixmap(const QImage& image /*= nullptr*/)
         QImage Image = image;
         if (Image.isNull())
         {
-            auto frameImage = picture->Image_Get(Pos - 1);
+            FFmpeg_Glue::Image frameImage = picture->Image_Get(Pos - 1);
             if(!frameImage.isNull())
             {
                 Image = QImage(frameImage.data(), frameImage.width(), frameImage.height(), frameImage.linesize(), QImage::Format_RGB888);
@@ -184,8 +159,8 @@ void ImageLabel::changeSelectionWidth(double value)
 {
     selectionSize.setWidth(value);
 
-    auto originalWidth = pictureWidth();
-    auto scaledWidth = Pixmap.width();
+    int originalWidth = pictureWidth();
+    int scaledWidth = Pixmap.width();
 
     int width = (value * scaledWidth / originalWidth);
 
@@ -210,8 +185,8 @@ void ImageLabel::changeSelectionHeight(double value)
 {
     selectionSize.setHeight(value);
 
-    auto originalHeight = pictureHeight();
-    auto scaledHeight = Pixmap.height();
+    int originalHeight = pictureHeight();
+    int scaledHeight = Pixmap.height();
 
     int height = (value * scaledHeight / originalHeight);
 
@@ -257,15 +232,14 @@ void ImageLabel::setSelectionArea(double x, double y, double w, double h)
     selectionPos.setX(x); selectionPos.setY(y); selectionSize.setWidth(w); selectionSize.setHeight(h);
 
     // x, y - top left of box
+    int originalWidth = pictureWidth();
+    int originalHeight = pictureHeight();
 
-    auto originalWidth = pictureWidth();
-    auto originalHeight = pictureHeight();
+    int scaledWidth = Pixmap.width();
+    int scaledHeight = Pixmap.height();
 
-    auto scaledWidth = Pixmap.width();
-    auto scaledHeight = Pixmap.height();
-
-    auto scaledX = x * scaledWidth / originalWidth;
-    auto scaledY = y * scaledHeight / originalHeight;
+    double scaledX = x * scaledWidth / originalWidth;
+    double scaledY = y * scaledHeight / originalHeight;
 
     int width = (w * scaledWidth / originalWidth);
     int height = (h * scaledHeight / originalHeight);
@@ -408,12 +382,12 @@ bool ImageLabel::eventFilter(QObject *object, QEvent *event)
 
     if(event->type() == QEvent::Paint)
     {
-        if(*Picture == nullptr)
+        if(*Picture == NULL)
         {
             return false;
         }
 
-        auto picture = *Picture;
+        FFmpeg_Glue* picture = *Picture;
 
         QWidget* widget = static_cast<QWidget*> (object);
 
@@ -424,14 +398,14 @@ bool ImageLabel::eventFilter(QObject *object, QEvent *event)
         QPainter p(widget);
         p.setPen(Qt::green);
 
-        auto originalWidth = pictureWidth();
-        auto originalHeight = pictureHeight();
+        int originalWidth = pictureWidth();
+        int originalHeight = pictureHeight();
 
-        auto scaledWidth = selectionArea->width();
-        auto scaledHeight = selectionArea->height();
+        int scaledWidth = selectionArea->width();
+        int scaledHeight = selectionArea->height();
 
-        auto scaledX = selectionPos.x() * scaledWidth / originalWidth;
-        auto scaledY = selectionPos.y() * scaledHeight / originalHeight;
+        double scaledX = selectionPos.x() * scaledWidth / originalWidth;
+        double scaledY = selectionPos.y() * scaledHeight / originalHeight;
 
         p.fillRect(QRect(0, 0, size().width(), 100), QColor(32, 32, 32, 200));
         p.drawText(20, 20, QString("frameWidth: %1, frameHeight: %2, fw/fh: %3, imageWidth: %4, imageHeigh: %5, iw/ih: %6")
@@ -498,19 +472,19 @@ bool ImageLabel::eventFilter(QObject *object, QEvent *event)
 
 bool ImageLabel::needRescale()
 {
-    if(*Picture == nullptr || !ui->fitToScreen_radioButton->isChecked())
+    if(*Picture == NULL || !ui->fitToScreen_radioButton->isChecked())
     {
         return false;
     }
 
-    auto picture = *Picture;
-    auto availableSize = ui->scrollArea->viewport()->size() - QSize(1, 1);
+    FFmpeg_Glue* picture = *Picture;
+    QSize availableSize = ui->scrollArea->viewport()->size() - QSize(1, 1);
 
     QSize Size = availableSize;
     QSize pixmapSize = Pixmap.size();
 
-    auto dar = picture->OutputDAR_Get(Pos - 1);
-    auto iar = qreal(Size.width()) / Size.height();
+    double dar = picture->OutputDAR_Get(Pos - 1);
+    double iar = qreal(Size.width()) / Size.height();
 
     int expectedWidth = 0;
     int expectedHeight = 0;
@@ -599,13 +573,13 @@ void ImageLabel::rescale(const QSize& newSize /*= QSize()*/ )
 {
     qDebug() << "imageLabel::rescale";
 
-    if(*Picture == nullptr)
+    if(*Picture == NULL)
     {
         return;
     }
 
-    auto picture = *Picture;
-    auto availableSize = !newSize.isEmpty() ? newSize : ui->scrollArea->viewport()->size() - QSize(1, 1);
+    FFmpeg_Glue* picture = *Picture;
+    QSize availableSize = !newSize.isEmpty() ? newSize : ui->scrollArea->viewport()->size() - QSize(1, 1);
 
     if(availableSize.width() <= 0 || availableSize.height() <= 0)
         return;
@@ -613,9 +587,9 @@ void ImageLabel::rescale(const QSize& newSize /*= QSize()*/ )
     int width = pictureWidth();
 
     picture->Scale_Change(availableSize.width(), availableSize.height(), Pos - 1);
-    auto scaleFactor = (qreal) availableSize.width() / width;
+    qreal scaleFactor = (qreal) availableSize.width() / width;
 
-    auto image = picture->Image_Get(Pos - 1);
+    FFmpeg_Glue::Image image = picture->Image_Get(Pos - 1);
 
     if (image.isNull())
     {
@@ -641,4 +615,34 @@ void ImageLabel::rescale(const QSize& newSize /*= QSize()*/ )
 QSize ImageLabel::pixmapSize() const
 {
     return Pixmap.size();
+}
+
+void ImageLabel::geometryChangeFinished()
+{
+    Q_EMIT selectionChangeFinished(QRectF(selectionPos, selectionSize));
+}
+
+void ImageLabel::geometryChanged(const QRect& geometry)
+{
+    int scaledWidth = Pixmap.width();
+    int scaledHeight = Pixmap.height();
+
+    QRectF originalGeometry(geometry);
+
+    int originalWidth = pictureWidth();
+    int originalHeight = pictureHeight();
+
+    QSizeF size(originalGeometry.width() * originalWidth / scaledWidth,
+                originalGeometry.height() * originalHeight / scaledHeight);
+
+    QPointF topLeft(originalGeometry.topLeft().x() * originalWidth / scaledWidth,
+                    originalGeometry.topLeft().y() * originalHeight / scaledHeight);
+
+    originalGeometry.setSize(size);
+    originalGeometry.moveTopLeft(topLeft);
+
+    selectionPos = originalGeometry.topLeft();
+    selectionSize = originalGeometry.size();
+
+    Q_EMIT selectionChanged(originalGeometry);
 }

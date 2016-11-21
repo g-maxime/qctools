@@ -245,7 +245,7 @@ void FFmpeg_Glue::inputdata::Encode(AVPacket* SourcePacket)
     {
         return;
     }
-                                    
+
     AVPacket TempPacket=*SourcePacket;
     TempPacket.pts=AV_NOPTS_VALUE;
     TempPacket.dts=AV_NOPTS_VALUE;
@@ -363,7 +363,7 @@ FFmpeg_Glue::outputdata::outputdata()
     OutputMethod(Output_None),
     Thumbnails_Modulo(1),
     Stats(NULL),
-    
+
     // Helpers
     Width(0),
     Height(0),
@@ -393,7 +393,7 @@ FFmpeg_Glue::outputdata::~outputdata()
 
     // FFmpeg pointers - Scale
     if (ScaledFrame)
-        ScaledFrame.reset();
+        ScaledFrame.clear();
 
     if (ScaleContext)
         sws_freeContext(ScaleContext);
@@ -427,8 +427,8 @@ void FFmpeg_Glue::outputdata::Process(AVFrame* DecodedFrame_)
     // Stats
     if (Stats && FilteredFrame && !Filter.empty())
     {
-        Stats->TimeStampFromFrame(FilteredFrame.get(), FramePos-1);
-        Stats->StatsFromFrame(FilteredFrame.get(), Stream->codec->width, Stream->codec->height);
+        Stats->TimeStampFromFrame(FilteredFrame.data(), FramePos-1);
+        Stats->StatsFromFrame(FilteredFrame.data(), Stream->codec->width, Stream->codec->height);
     }
 
     // Scale
@@ -443,23 +443,23 @@ void FFmpeg_Glue::outputdata::Process(AVFrame* DecodedFrame_)
         case Output_QImage  :   ReplaceImage(); break;
         case Output_Jpeg    :   AddThumbnail();  break;
         default             :   ;
-    }    
+    }
 }
 
 //---------------------------------------------------------------------------
 void FFmpeg_Glue::outputdata::ApplyFilter(const AVFramePtr& sourceFrame)
 {
-    FilteredFrame.reset();
+    FilteredFrame.clear();
 
     if (Filter.empty())
         return;
 
     if (!FilterGraph && !FilterGraph_Init())
         return;
-            
-    // Push the decoded Frame into the filtergraph 
+
+    // Push the decoded Frame into the filtergraph
     //if (av_buffersrc_add_frame_flags(FilterGraph_Source_Context, DecodedFrame, AV_BUFFERSRC_FLAG_KEEP_REF)<0)
-    if (av_buffersrc_add_frame_flags(FilterGraph_Source_Context, sourceFrame.get(), 0)<0)
+    if (av_buffersrc_add_frame_flags(FilterGraph_Source_Context, sourceFrame.data(), 0)<0)
         return;
 
     struct FilteredFrameDeleter {
@@ -471,26 +471,26 @@ void FFmpeg_Glue::outputdata::ApplyFilter(const AVFramePtr& sourceFrame)
         }
     };
 
-    // Pull filtered frames from the filtergraph 
+    // Pull filtered frames from the filtergraph
     FilteredFrame = AVFramePtr(av_frame_alloc(), FilteredFrameDeleter::free);
-    int GetAnswer = av_buffersink_get_frame(FilterGraph_Sink_Context, FilteredFrame.get()); //TODO: handling of multiple output per input
+    int GetAnswer = av_buffersink_get_frame(FilterGraph_Sink_Context, FilteredFrame.data()); //TODO: handling of multiple output per input
     if (GetAnswer==AVERROR(EAGAIN) || GetAnswer==AVERROR_EOF)
     {
-        FilteredFrame.reset();
-        OutputFrame.reset();
+        FilteredFrame.clear();
+        OutputFrame.clear();
         return;
     }
 
     if (GetAnswer<0)
     {
-        FilteredFrame.reset();
+        FilteredFrame.clear();
     }
 }
 
 //---------------------------------------------------------------------------
 void FFmpeg_Glue::outputdata::ApplyScale(const AVFramePtr& sourceFrame)
 {
-    ScaledFrame.reset();
+    ScaledFrame.clear();
 
     if (!sourceFrame || !sourceFrame->width || !sourceFrame->height)
         return;
@@ -500,7 +500,7 @@ void FFmpeg_Glue::outputdata::ApplyScale(const AVFramePtr& sourceFrame)
         case Output_Jpeg:
         case Output_QImage:
                             break;
-        default: 
+        default:
                             return;
     }
 
@@ -523,7 +523,7 @@ void FFmpeg_Glue::outputdata::ApplyScale(const AVFramePtr& sourceFrame)
     av_image_alloc(ScaledFrame->data, ScaledFrame->linesize, Width, Height, OutputMethod==Output_QImage?AV_PIX_FMT_RGB24:AV_PIX_FMT_YUVJ420P, 1);
     if (sws_scale(ScaleContext, sourceFrame->data, sourceFrame->linesize, 0, sourceFrame->height, ScaledFrame->data, ScaledFrame->linesize)<0)
     {
-        ScaledFrame.reset();
+        ScaledFrame.clear();
     }
 }
 
@@ -538,20 +538,20 @@ void FFmpeg_Glue::outputdata::AddThumbnail()
 {
     if (Thumbnails.size()%Thumbnails_Modulo)
     {
-        Thumbnails.push_back(NULL);
+        Thumbnails.push_back(static_cast<FFmpeg_Glue::bytes*>(NULL));
         return; // Not wanting to saturate memory. TODO: Find a smarter way to detect memory usage
     }
-        
+
     int got_packet=0;
     if (!JpegOutput_CodecContext && !InitThumnails())
     {
         Thumbnails.push_back(new bytes());
         return;
     }
-                                    
+
     JpegOutput_Packet->data=NULL;
     JpegOutput_Packet->size=0;
-    if (avcodec_encode_video2(JpegOutput_CodecContext, JpegOutput_Packet, OutputFrame.get(), &got_packet) < 0 || !got_packet)
+    if (avcodec_encode_video2(JpegOutput_CodecContext, JpegOutput_Packet, OutputFrame.data(), &got_packet) < 0 || !got_packet)
     {
         Thumbnails.push_back(new bytes());
         return;
@@ -573,7 +573,7 @@ bool FFmpeg_Glue::outputdata::InitThumnails()
     //
     JpegOutput_Packet=new AVPacket;
     av_init_packet (JpegOutput_Packet);
-   
+
     //
     AVCodec *JpegOutput_Codec=avcodec_find_encoder(AV_CODEC_ID_MJPEG);
     if (!JpegOutput_Codec)
@@ -643,7 +643,7 @@ bool FFmpeg_Glue::outputdata::FilterGraph_Init()
         return false;
     }
 
-    // Endpoints for the filter graph. 
+    // Endpoints for the filter graph.
     Outputs->name       = av_strdup("in");
     Outputs->filter_ctx = FilterGraph_Source_Context;
     Outputs->pad_idx    = 0;
@@ -681,8 +681,8 @@ void FFmpeg_Glue::outputdata::FilterGraph_Free()
 bool FFmpeg_Glue::outputdata::Scale_Init()
 {
     if (!OutputFrame)
-        return false;    
-        
+        return false;
+
     if (!AdaptDAR())
         return false;
 
@@ -706,7 +706,7 @@ void FFmpeg_Glue::outputdata::Scale_Free()
         ScaleContext=NULL;
     }
 
-    ScaledFrame.reset();
+    ScaledFrame.clear();
 }
 
 //---------------------------------------------------------------------------
@@ -753,7 +753,7 @@ FFmpeg_Glue::FFmpeg_Glue (const string &FileName_, activealltracks ActiveAllTrac
     WithStats(WithStats_),
     FileName(FileName_),
     InputDatas_Copy(false),
-    mutex(nullptr),
+    mutex(NULL),
     // Encode
     Encode_FormatContext(NULL)
 {
@@ -805,7 +805,7 @@ FFmpeg_Glue::FFmpeg_Glue (const string &FileName_, activealltracks ActiveAllTrac
                                                         InputDatas.push_back(InputData);
                                                     }
                                                     break;
-                        default: InputDatas.push_back(NULL);
+                        default: InputDatas.push_back(static_cast<FFmpeg_Glue::inputdata*>(NULL));
                     }
                 }
             }
@@ -856,7 +856,7 @@ FFmpeg_Glue::FFmpeg_Glue (const string &FileName_, activealltracks ActiveAllTrac
                                                 break;
                 }
             }
-            
+
             Stats->push_back(Stat);
         }
     }
@@ -903,7 +903,7 @@ QByteArray FFmpeg_Glue::Thumbnail_Get(size_t Pos, size_t FramePos)
     if (Pos>=OutputDatas.size() || !OutputDatas[Pos] || !OutputDatas[Pos]->Enabled)
         return NULL;
 
-    auto bytes = OutputDatas[Pos]->Thumbnails[FramePos];
+    bytes* bytes = OutputDatas[Pos]->Thumbnails[FramePos];
     return QByteArray(reinterpret_cast<char*> (bytes->Data), bytes->Size);
 }
 
@@ -1025,7 +1025,7 @@ void FFmpeg_Glue::AddOutput(size_t FilterPos, int Scale_Width, int Scale_Height,
 
         if (InputData && InputData->Type==FilterType)
         {
-            OutputDatas.push_back(NULL);
+            OutputDatas.push_back(static_cast<FFmpeg_Glue::outputdata*>(NULL));
             ModifyOutput(InputPos, OutputDatas.size()-1, FilterPos, Scale_Width, Scale_Height, OutputMethod, FilterType, Filter);
         }
     }
@@ -1106,7 +1106,7 @@ void FFmpeg_Glue::Seek(size_t FramePos)
                 Seek_TimeStamp*=InputData->Stream->duration;
                 Seek_TimeStamp/=InputData->FrameCount;  // TODO: seek based on time stamp
             }
-    
+
             // Seek
             if (FormatContext)
             {
@@ -1175,7 +1175,7 @@ bool FFmpeg_Glue::NextFrame()
     {
         if (Seek_TimeStamp!=AV_NOPTS_VALUE)
             InputDatas[0]->FramePos=Seek_TimeStamp;
-            
+
         AVPacket Packet;
         av_init_packet(&Packet);
         av_packet_from_data(&Packet, NULL, 0);
@@ -1208,7 +1208,7 @@ bool FFmpeg_Glue::NextFrame()
         }
         return true;
     }
-    
+
     if (!FormatContext)
         return false;
 
@@ -1233,12 +1233,12 @@ bool FFmpeg_Glue::NextFrame()
         av_packet_unref(&TempPacket);
         Packet->size=0;
     }
-    
+
     // Flushing
     Packet->data=NULL;
     Packet->size=0;
     while (OutputFrame(Packet));
-    
+
     // Complete
     if (WithStats)
         for (size_t Pos=0; Pos<Stats->size(); Pos++)
@@ -1269,7 +1269,7 @@ bool FFmpeg_Glue::OutputFrame(AVPacket* TempPacket, bool Decode)
         if (Encode_FormatContext)
             InputData->Encode(TempPacket);
     }
-    
+
     // Decoding
     int got_frame;
     if (Decode)
@@ -1282,7 +1282,7 @@ bool FFmpeg_Glue::OutputFrame(AVPacket* TempPacket, bool Decode)
             case AVMEDIA_TYPE_AUDIO : Bytes=avcodec_decode_audio4(InputData->Stream->codec, Frame, &got_frame, TempPacket); break;
             default                 : Bytes=0;
         }
-        
+
         if (Bytes<=0 && !got_frame)
         {
             TempPacket->data+=TempPacket->size;
@@ -1304,7 +1304,7 @@ bool FFmpeg_Glue::OutputFrame(AVPacket* TempPacket, bool Decode)
         int64_t ts=(Frame->pkt_pts==AV_NOPTS_VALUE)?Frame->pkt_dts:Frame->pkt_pts;
         if (ts!=AV_NOPTS_VALUE && ts<InputData->FirstTimeStamp*InputData->Stream->time_base.den/InputData->Stream->time_base.num)
             InputData->FirstTimeStamp=((double)ts)*InputData->Stream->time_base.num/InputData->Stream->time_base.den;
-        
+
         for (size_t OutputPos=0; OutputPos<OutputDatas.size(); OutputPos++)
             if (OutputDatas[OutputPos] && OutputDatas[OutputPos]->Enabled && OutputDatas[OutputPos]->Stream==InputData->Stream)
                 OutputDatas[OutputPos]->Process(Frame);
@@ -1631,7 +1631,7 @@ void FFmpeg_Glue::setThreadSafe(bool enable)
         if(mutex)
         {
             delete mutex;
-            mutex = nullptr;
+            mutex = NULL;
         }
     }
 }
@@ -1734,7 +1734,7 @@ string FFmpeg_Glue::RVideoFrameRate_Get()
 
     if (InputData==NULL || InputData->Stream==NULL || InputData->Stream->codec==NULL || InputData->Stream->codec->codec==NULL || InputData->Stream->codec->codec->long_name==NULL)
         return string();
-    
+
     if (InputData->Stream->r_frame_rate.num==0)
         return "Und";
     else
@@ -1757,7 +1757,7 @@ string FFmpeg_Glue::AvgVideoFrameRate_Get()
 
     if (InputData==NULL || InputData->Stream==NULL || InputData->Stream->codec==NULL || InputData->Stream->codec->codec==NULL || InputData->Stream->codec->codec->long_name==NULL)
         return string();
-    
+
     ostringstream convert;
     if (InputData->Stream->avg_frame_rate.num==0)
         return "Und";
@@ -2340,9 +2340,9 @@ string FFmpeg_Glue::ChannelLayout_Get()
     switch (InputData->Stream->codec->channel_layout)
     {
         case AV_CH_LAYOUT_MONO: return "mono";
-        case AV_CH_LAYOUT_STEREO: return "stereo"; 
-        case AV_CH_LAYOUT_2POINT1: return "2.1"; 
-        case AV_CH_LAYOUT_SURROUND: return "3.0"; 
+        case AV_CH_LAYOUT_STEREO: return "stereo";
+        case AV_CH_LAYOUT_2POINT1: return "2.1";
+        case AV_CH_LAYOUT_SURROUND: return "3.0";
         case AV_CH_LAYOUT_2_1: return "3.0(back)";
         case AV_CH_LAYOUT_4POINT0: return "4.0";
         case AV_CH_LAYOUT_QUAD: return "quad";
@@ -2351,7 +2351,7 @@ string FFmpeg_Glue::ChannelLayout_Get()
         case AV_CH_LAYOUT_5POINT0_BACK: return "5.0";
         case AV_CH_LAYOUT_5POINT0: return "5.0(side)";
         case AV_CH_LAYOUT_4POINT1: return "4.1";
-        case AV_CH_LAYOUT_5POINT1_BACK: 
+        case AV_CH_LAYOUT_5POINT1_BACK:
         case AV_CH_LAYOUT_5POINT1: return "5.1(side)";
         case AV_CH_LAYOUT_6POINT0: return "6.0";
         case AV_CH_LAYOUT_6POINT0_FRONT: return "6.0(front)";
@@ -2465,7 +2465,7 @@ int FFmpeg_Glue::Image::linesize() const
 
 void FFmpeg_Glue::Image::free()
 {
-    frame.reset();
+    frame.clear();
 }
 
 
