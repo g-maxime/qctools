@@ -327,7 +327,7 @@ void MainWindow::Zoom( bool on )
 
 void MainWindow::changeFilterSelectorsOrder(QList<QPair<int, int> > filtersInfo)
 {
-    QSignalBlocker blocker(draggableBehaviour);
+    draggableBehaviour->blockSignals(true);
 
     QHBoxLayout* boxlayout = static_cast<QHBoxLayout*> (ui->horizontalLayout);
 
@@ -356,6 +356,8 @@ void MainWindow::changeFilterSelectorsOrder(QList<QPair<int, int> > filtersInfo)
     {
         boxlayout->addItem(*item);
     }
+
+    draggableBehaviour->blockSignals(false);
 }
 
 QAction *MainWindow::createOpenRecentAction(const QString &fileName)

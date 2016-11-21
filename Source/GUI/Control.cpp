@@ -184,8 +184,8 @@ void Control::stop()
 {
     if(Thread)
     {
-        qDebug() << "Thread->requestInterruption()";
-        Thread->requestInterruption();
+
+        QMetaObject::invokeMethod(this, "requestInterruption", Qt::QueuedConnection);
 
         while (Timer->isActive()) {
             qDebug() << "timer is still active...";
@@ -887,4 +887,5 @@ void Control::requestInterruption()
         qDebug() << "stopping timer...";
         Timer->stop();
     }
+
 }
