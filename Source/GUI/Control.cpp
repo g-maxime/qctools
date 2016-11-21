@@ -42,7 +42,8 @@ Control::Control(QWidget *parent, FileInformation* FileInformationData_, style S
     FileInfoData(FileInformationData_),
     Style(Style_),
     IsSlave(IsSlave_),
-    playAllFrames(true)
+    playAllFrames(true),
+    isInterruptionRequested(false)
 {
     // To update
     TinyDisplayArea=NULL;
@@ -219,8 +220,8 @@ void Control::stop()
 {
     if(Thread)
     {
-        qDebug() << "Thread->requestInterruption()";
-        Thread->requestInterruption();
+
+        QMetaObject::invokeMethod(this, "requestInterruption", Qt::QueuedConnection);
 
         while (Timer->isActive()) {
             qDebug() << "timer is still active...";
@@ -926,9 +927,16 @@ void Control::TimeOut ()
         }
     }
 
-    if (QThread::currentThread()->isInterruptionRequested())
+    if (isInterruptionRequested)
     {
         qDebug() << "stopping timer...";
         Timer->stop();
+        isInterruptionRequested = false;
     }
+
+}
+
+void Control::requestInterruption()
+{
+    isInterruptionRequested = true;
 }

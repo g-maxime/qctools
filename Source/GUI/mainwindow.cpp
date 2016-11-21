@@ -562,7 +562,7 @@ void MainWindow::on_actionUploadToSignalServer_triggered()
         {
             QString statsFileName = file->fileName() + ".qctools.xml.gz";
             QFileInfo info(statsFileName);
-            if(info.exists(statsFileName))
+            if(info.exists())
             {
                 file->upload(info);
             }
@@ -591,9 +591,9 @@ void MainWindow::on_actionUploadToSignalServerAll_triggered()
         {
             QString statsFileName = file->fileName() + ".qctools.xml.gz";
             QFileInfo info(statsFileName);
-            if(info.exists(statsFileName))
+            if(info.exists())
             {
-                file->upload(statsFileName);
+                file->upload(info);
             }
             else
             {

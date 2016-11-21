@@ -40,7 +40,7 @@ public:
         Style_Cols,
         Style_Grid,
     };
-    explicit Control(QWidget *parent, FileInformation* FileInfoData, 
+    explicit Control(QWidget *parent, FileInformation* FileInfoData,
         style Style, bool IsSlave=false);
 
     virtual ~Control();
@@ -73,6 +73,8 @@ public Q_SLOTS:
 
     void setCurrentFrame(size_t frame);
     void rewind(int frame);
+
+    void requestInterruption();
 
 public:
     // To update
@@ -136,6 +138,8 @@ private:
 
     bool    Time_MinusPlus;
     int     Timer_Duration;
+
+    bool isInterruptionRequested;
 };
 
 #endif // GUI_Control_H

@@ -107,7 +107,11 @@ public:
         CheckError
     };
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     Q_ENUM(SignalServerCheckUploadedStatus);
+#else
+    Q_ENUMS(SignalServerCheckUploadedStatus);
+#endif
 
     SignalServerCheckUploadedStatus signalServerCheckUploadedStatus() const;
     QString signalServerCheckUploadedStatusString() const;
@@ -120,7 +124,11 @@ public:
         UploadError
     };
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     Q_ENUM(SignalServerUploadStatus);
+#else
+    Q_ENUMS(SignalServerUploadStatus);
+#endif
 
     SignalServerUploadStatus signalServerUploadStatus() const;
     QString signalServerUploadStatusString() const;
@@ -183,5 +191,4 @@ private:
     bool m_autoUpload;
     bool m_hasStats;
 };
-
 #endif // GUI_FileInformation_H
