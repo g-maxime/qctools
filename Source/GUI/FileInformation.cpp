@@ -392,7 +392,7 @@ QPixmap FileInformation::Picture_Get (size_t Pos)
     }
     else
     {
-        auto Thumbnail = Glue->Thumbnail_Get(0, Pos);
+        QByteArray Thumbnail = Glue->Thumbnail_Get(0, Pos);
         if (!Thumbnail.isEmpty())
             Pixmap.loadFromData(Thumbnail);
         else
@@ -515,7 +515,7 @@ bool FileInformation::PlayBackFilters_Available ()
 
 qreal FileInformation::averageFrameRate() const
 {
-    auto splitted = QString::fromStdString(Glue->AvgVideoFrameRate_Get()).split("/");
+    QStringList splitted = QString::fromStdString(Glue->AvgVideoFrameRate_Get()).split("/");
     if(splitted.length() == 1)
         return splitted[0].toDouble();
 

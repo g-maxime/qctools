@@ -6,7 +6,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET = QCTools
 TEMPLATE = app
 
-CONFIG += c++11
 CONFIG += qt debug_and_release
 CONFIG += no_keywords
 QMAKE_CXXFLAGS += -DBLACKMAGICDECKLINK_NO -DWITH_SYSTEM_FFMPEG=1

@@ -324,7 +324,7 @@ void MainWindow::createGraphsLayout()
 
     PlotsArea=Files[Files_CurrentPos]->Stats.empty()?NULL:new Plots(this, Files[Files_CurrentPos]);
 
-    auto filtersInfo = Prefs->loadFilterSelectorsOrder();
+    QList<std::tr1::tuple<int, int> > filtersInfo = Prefs->loadFilterSelectorsOrder();
     changeFilterSelectorsOrder(filtersInfo);
     PlotsArea->changeOrder(filtersInfo);
 
@@ -340,7 +340,7 @@ void MainWindow::createGraphsLayout()
     ControlArea=new Control(this, Files[Files_CurrentPos], Control::Style_Cols);
     ControlArea->setPlayAllFrames(ui->actionPlay_All_Frames->isChecked());
 
-    connect( ControlArea, SIGNAL( currentFrameChanged() ), 
+    connect( ControlArea, SIGNAL( currentFrameChanged() ),
         this, SLOT( on_CurrentFrameChanged() ) );
 
     if (!ui->actionGraphsLayout->isChecked())
