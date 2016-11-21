@@ -8,7 +8,7 @@ TEMPLATE = app
 
 CONFIG += qt debug_and_release
 CONFIG += no_keywords
-QMAKE_CXXFLAGS += -DBLACKMAGICDECKLINK_NO -DWITH_SYSTEM_FFMPEG=1
+QMAKE_CXXFLAGS += -DBLACKMAGICDECKLINK_NO -DWITH_SYSTEM_FFMPEG=1 -std=c++0x
 
 HEADERS = \
     ../../Source/Core/AudioCore.h \
@@ -134,10 +134,11 @@ LIBS      += -L$${PWD}/../../../ffmpeg/libavdevice -lavdevice \
     LIBS      += -lbz2
 }
 
-linux {
-    LIBS      += -ldl -lrt
+unix {
+    LIBS       += -ldl
+    !macx:LIBS += -lrt
 }
 
 macx:ICON = ../../Source/Resource/Logo.icns
-macx:QMAKE_LFLAGS += -framework CoreFoundation -framework CoreVideo -framework VideoDecodeAcceleration
+macx:QMAKE_LFLAGS += -framework AppKit -framework QuartzCore -framework CoreGraphics -framework CoreFoundation -framework CoreVideo -framework VideoDecodeAcceleration -framework CoreAudio -framework AudioToolbox
 macx:LIBS += -liconv
