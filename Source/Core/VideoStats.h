@@ -23,7 +23,7 @@ class VideoStats : public CommonStats
 {
 public:
     // Constructor / Destructor
-    VideoStats(size_t FrameCount=0, double Duration=0, AVStream* stream = nullptr);
+    VideoStats(size_t FrameCount=0, double Duration=0, AVStream* stream = NULL);
     ~VideoStats();
 
     // External data

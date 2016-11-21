@@ -21,7 +21,7 @@ class CommonStats
 {
 public:
     // Constructor / Destructor
-    CommonStats(const struct per_item* PerItem, int Type, size_t CountOfGroups, size_t CountOfItems, size_t FrameCount=0, double Duration=0, AVStream* stream = nullptr);
+    CommonStats(const struct per_item* PerItem, int Type, size_t CountOfGroups, size_t CountOfItems, size_t FrameCount=0, double Duration=0, AVStream* stream = NULL);
     virtual ~CommonStats();
 
     // Data

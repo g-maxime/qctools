@@ -23,7 +23,7 @@ class AudioStats : public CommonStats
 {
 public:
     // Constructor / Destructor
-    AudioStats(size_t FrameCount=0, double Duration=0, AVStream* stream = nullptr);
+    AudioStats(size_t FrameCount=0, double Duration=0, AVStream* stream = NULL);
     ~AudioStats();
 
     // External data
