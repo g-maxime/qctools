@@ -14,6 +14,7 @@
 #include <QMutex>
 
 #include <vector>
+
 using namespace std;
 
 #include "Core/Core.h"
@@ -121,12 +122,12 @@ public:
 
     //Preferences
     PreferencesDialog*          Prefs;
-    
+
     SignalServer*               getSignalServer();
-    QList<std::tuple<int, int>> getFilterSelectorsOrder(int start, int end);
+    QList<QPair<int, int> >     getFilterSelectorsOrder(int start, int end);
 
     QAction* uploadAction() const;
-    QAction* uploadAllAction() const;
+	QAction* uploadAllAction() const;
 
 public Q_SLOTS:
 	void Update();
@@ -229,12 +230,13 @@ private Q_SLOTS:
     void updateSignalServerCheckUploadedStatus();
     void updateSignalServerUploadStatus();
     void updateSignalServerUploadProgress(qint64, qint64);
+    void positionChanged(QWidget* child, int oldPos, int newPos);
 
 private:
     void updateScrollBar( bool blockSignals = false );
     bool isPlotZoomable() const;
     void Zoom( bool );
-    void changeFilterSelectorsOrder(QList<std::tuple<int, int> > filtersInfo);
+    void changeFilterSelectorsOrder(QList<QPair<int, int> > filtersInfo);
 
     DraggableChildrenBehaviour* draggableBehaviour;
     SignalServer* signalServer;

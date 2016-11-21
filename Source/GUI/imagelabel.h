@@ -43,6 +43,9 @@ public Q_SLOTS:
 
     void showDebugOverlay(bool enable);
 
+    void geometryChangeFinished();
+    void geometryChanged(const QRect& geometry);
+
 Q_SIGNALS:
 
     void selectionChanged(const QRectF& geometry);

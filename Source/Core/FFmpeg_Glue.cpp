@@ -529,7 +529,7 @@ void FFmpeg_Glue::outputdata::AddThumbnail()
 {
     if (Thumbnails.size()%Thumbnails_Modulo)
     {
-        Thumbnails.push_back(NULL);
+        Thumbnails.push_back(static_cast<FFmpeg_Glue::bytes*>(NULL));
         return; // Not wanting to saturate memory. TODO: Find a smarter way to detect memory usage
     }
         
@@ -771,7 +771,7 @@ FFmpeg_Glue::FFmpeg_Glue (const string &FileName_, activealltracks ActiveAllTrac
     WithStats(WithStats_),
     FileName(FileName_),
     InputDatas_Copy(false),
-    mutex(nullptr),
+    mutex(NULL),
     // Encode
     Encode_FormatContext(NULL)
 {
@@ -823,7 +823,7 @@ FFmpeg_Glue::FFmpeg_Glue (const string &FileName_, activealltracks ActiveAllTrac
                                                         InputDatas.push_back(InputData);
                                                     }
                                                     break;
-                        default: InputDatas.push_back(NULL);
+                        default: InputDatas.push_back(static_cast<FFmpeg_Glue::inputdata*>(NULL));
                     }
                 }
             }
@@ -921,7 +921,7 @@ QByteArray FFmpeg_Glue::Thumbnail_Get(size_t Pos, size_t FramePos)
     if (Pos>=OutputDatas.size() || !OutputDatas[Pos] || !OutputDatas[Pos]->Enabled)
         return NULL;
 
-    auto bytes = OutputDatas[Pos]->Thumbnails[FramePos];
+    bytes* bytes = OutputDatas[Pos]->Thumbnails[FramePos];
     return QByteArray(reinterpret_cast<char*> (bytes->Data), bytes->Size);
 }
 
@@ -1043,7 +1043,7 @@ void FFmpeg_Glue::AddOutput(size_t FilterPos, int Scale_Width, int Scale_Height,
 
         if (InputData && InputData->Type==FilterType)
         {
-            OutputDatas.push_back(NULL);
+            OutputDatas.push_back(static_cast<FFmpeg_Glue::outputdata*>(NULL));
             ModifyOutput(InputPos, OutputDatas.size()-1, FilterPos, Scale_Width, Scale_Height, OutputMethod, FilterType, Filter);
         }
     }
@@ -1604,7 +1604,7 @@ void FFmpeg_Glue::setThreadSafe(bool enable)
         if(mutex)
         {
             delete mutex;
-            mutex = nullptr;
+            mutex = NULL;
         }
     }
 }
@@ -1893,7 +1893,7 @@ double FFmpeg_Glue::OutputDAR_Get(int Pos)
 
     if (OutputData)
     {
-        auto DecodedFrame = OutputData->DecodedFrame;
+        AVFrame* DecodedFrame = OutputData->DecodedFrame;
 
         if (!DecodedFrame)
             DAR=4.0/3.0; // TODO: video frame DAR

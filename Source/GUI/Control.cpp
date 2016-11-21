@@ -228,8 +228,8 @@ void Control::stop()
         }
 
         Thread->quit();
-        Thread = nullptr;
-        Timer = nullptr;
+        Thread = NULL;
+        Timer = NULL;
     }
 }
 
@@ -824,7 +824,7 @@ void Control::TimeOut_Init()
     startFrameTimeStamp = QTime::currentTime();
     lastRenderedFrame = -1;
 
-    auto averageFrameRate = FileInfoData->averageFrameRate();
+    qreal averageFrameRate = FileInfoData->averageFrameRate();
     averageFrameDuration = averageFrameRate != 0.0 ? 1000.0 / averageFrameRate : 0.0;
 
     if (!Timer)
@@ -905,10 +905,10 @@ void Control::TimeOut ()
 				setCurrentFrame(++lastRenderedFrame);
         } else {
 
-            auto currentTime = QTime::currentTime();
-            auto timeFromStartFrame = startFrameTimeStamp.msecsTo(currentTime);
+            QTime currentTime = QTime::currentTime();
+            int timeFromStartFrame = startFrameTimeStamp.msecsTo(currentTime);
 
-            auto framesFromStartFrame = floor(qreal(timeFromStartFrame) / averageFrameDuration);
+            double framesFromStartFrame = floor(qreal(timeFromStartFrame) / averageFrameDuration);
             if(SelectedSpeed == Speed_M0 || SelectedSpeed == Speed_P0) {
                 framesFromStartFrame /= 2;
             } else if(SelectedSpeed == Speed_M2 || SelectedSpeed == Speed_P2) {
