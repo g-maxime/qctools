@@ -104,6 +104,11 @@ class BigDisplay : public QDialog
 {
     Q_OBJECT
 
+#if QT_VERSION < 0x050200
+private:
+    bool                        Stop;
+#endif
+
 public:
     // Constructor/Destructor
     explicit BigDisplay(QWidget *parent, FileInformation* FileInfoData);
@@ -198,6 +203,9 @@ public Q_SLOTS:
     void on_Color2_click(bool checked);
 
     void on_Full_triggered();
+#if QT_VERSION < 0x050200
+    void interruptionRequested();
+#endif
 };
 
 #endif // GUI_BigDisplay_H

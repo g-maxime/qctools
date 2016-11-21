@@ -8,10 +8,8 @@
 #include "preferences.h"
 #include "ui_preferences.h"
 #include <QSettings>
-#include <QStandardPaths>
 #include <QMetaType>
 #include <QDebug>
-//---------------------------------------------------------------------------
 
 typedef std::tr1::tuple<int, int> GroupAndType;
 Q_DECLARE_METATYPE(GroupAndType)

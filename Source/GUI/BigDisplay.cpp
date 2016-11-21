@@ -1326,6 +1326,10 @@ BigDisplay::BigDisplay(QWidget *parent, FileInformation* FileInformationData_) :
     QObject::connect(shortcutSpace, SIGNAL(activated()), ControlArea->PlayPause, SLOT(click()));
     QShortcut *shortcutF = new QShortcut(QKeySequence(Qt::Key_F), this);
     QObject::connect(shortcutF, SIGNAL(activated()), this, SLOT(on_Full_triggered()));
+
+#if QT_VERSION < 0x050200
+    Stop = false;
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -2062,8 +2066,8 @@ void BigDisplay::ShowPicture ()
     if (!isVisible())
         return;
 
-	if (!Picture)
-		return;
+    if (!Picture)
+        return;
 
     if ((!ShouldUpate && Frames_Pos==FileInfoData->Frames_Pos_Get())
      || ( ShouldUpate && false)) // ToDo: try to optimize
@@ -2085,8 +2089,14 @@ void BigDisplay::ShowPicture ()
     }
     else
     {
+#if QT_VERSION >= 0x050200
         if (QThread::currentThread()->isInterruptionRequested())
         {
+#else
+        if (Stop)
+        {
+            Stop = false;
+#endif
             QMetaObject::invokeMethod(this, "updateImagesAndSlider", Qt::QueuedConnection,
                                       Q_ARG(const QPixmap&, QPixmap::fromImage(Picture->Image_Get(0))),
                                       Q_ARG(const QPixmap&, QPixmap::fromImage(Picture->Image_Get(1))),
@@ -2331,10 +2341,10 @@ void BigDisplay::updateSelection(int Pos, ImageLabel* image, options& opts)
         image->setMinSelectionSize(QSizeF(wSpinBox->minimum(), hSpinBox->minimum()));
         image->setMaxSelectionSize(QSizeF(wSpinBox->maximum(), hSpinBox->maximum()));
 
-        connect(xSpinBox, &DoubleSpinBoxWithSlider::controlValueChanged, image, &ImageLabel::moveSelectionX);
-        connect(ySpinBox, &DoubleSpinBoxWithSlider::controlValueChanged, image, &ImageLabel::moveSelectionY);
-        connect(wSpinBox, &DoubleSpinBoxWithSlider::controlValueChanged, image, &ImageLabel::changeSelectionWidth);
-        connect(hSpinBox, &DoubleSpinBoxWithSlider::controlValueChanged, image, &ImageLabel::changeSelectionHeight);
+        connect(xSpinBox, SIGNAL(controlValueChanged(double)), image, SLOT(moveSelectionX(double)));
+        connect(ySpinBox, SIGNAL(controlValueChanged(double)), image, SLOT(moveSelectionY(double)));
+        connect(wSpinBox, SIGNAL(controlValueChanged(double)), image, SLOT(changeSelectionWidth(double)));
+        connect(hSpinBox, SIGNAL(controlValueChanged(double)), image, SLOT(changeSelectionHeight(double)));
 
         connect(image, SIGNAL(selectionChangeFinished(const QRectF&)), xSpinBox, SLOT(selectionChangeFinishedX(const QRectF&)));
         connect(image, SIGNAL(selectionChangeFinished(const QRectF&)), ySpinBox, SLOT(selectionChangeFinishedY(const QRectF&)));
@@ -2469,6 +2479,14 @@ void BigDisplay::on_Full_triggered()
     else
         setWindowState(Qt::WindowMaximized);
 }
+
+//---------------------------------------------------------------------------
+#if QT_VERSION < 0x050200
+void BigDisplay::interruptionRequested()
+{
+    Stop = true;
+}
+#endif
 
 //---------------------------------------------------------------------------
 void DoubleSpinBoxWithSlider::selectionChangedX(const QRectF& geometry)
