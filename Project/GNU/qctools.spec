@@ -34,6 +34,7 @@ BuildRequires:  update-desktop-files
 %if 0%{?suse_version} >= 1200
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Widgets)
+BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Concurrent)
 BuildRequires:  pkgconfig(Qt5PrintSupport)
 %else
