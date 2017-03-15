@@ -33,6 +33,10 @@
 
 #include "GUI/draggablechildrenbehaviour.h"
 
+#if defined(__APPLE__) && QT_VERSION < 0x050400
+#include <CoreFoundation/CFURL.h>
+#endif
+
 //***************************************************************************
 // Constructor / Desructor
 //***************************************************************************
@@ -529,7 +533,27 @@ void MainWindow::dropEvent(QDropEvent *Event)
         QList<QUrl> urls=Event->mimeData()->urls();
         for (int Pos=0; Pos<urls.size(); Pos++)
         {
+#if defined(__APPLE__) && QT_VERSION < 0x050400
+            if (urls[Pos].url().startsWith("file:///.file/id="))
+            {
+                CFErrorRef Error = 0;
+                CFURLRef Cfurl = urls[Pos].toCFURL();
+                CFURLRef Absurl = CFURLCreateFilePathURL(kCFAllocatorDefault, Cfurl, &Error);
+
+                if(Error)
+                    continue;
+
+                addFile(QUrl::fromCFURL(Absurl).toLocalFile());
+                CFRelease(Cfurl);
+                CFRelease(Absurl);
+            }
+            else
+            {
+                addFile(urls[Pos].toLocalFile());
+            }
+#else
             addFile(urls[Pos].toLocalFile());
+#endif
         }
     }
 
