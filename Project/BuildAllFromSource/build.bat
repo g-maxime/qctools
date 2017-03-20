@@ -98,15 +98,11 @@ if exist Makefile nmake clean
 nmake Release
 
 rem *** Build QCTools ***
-cd "%BUILD_DIR%\qctools\Project\MSVC2015\GUI"
-call qt_update.bat
+cd "%BUILD_DIR%\qctools\Project\QtCreator"
+if exist Makefile nmake clean
 
-cd "%BUILD_DIR%\qctools\Project\MSVC2015"
-if defined STATIC (
-    MSBuild /t:Clean;Build /p:Configuration=StaticRelease;Platform=%PLATFORM%
-) else (
-    MSBuild /t:Clean;Build /p:Configuration=Release;Platform=%PLATFORM%
-)
+..\..\..\Qt\bin\qmake
+nmake
 
 rem *** Cleaning ***
 :clean

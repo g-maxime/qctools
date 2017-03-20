@@ -9,6 +9,7 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
+include(../utils.pri)
 include(../brew.pri)
 message("PWD = " $$PWD)
 
@@ -56,6 +57,11 @@ DEFINES += QT_DEPRECATED_WARNING
 
 !win32 {
     LIBS += -lz
+} else {
+    CONFIG(release, debug|release):contains(QMAKE_TARGET.arch, x86_64): LIBS += -L$$THIRD_PARTY_PATH/zlib/contrib/vstudio/vc14/x64/ZlibStatRelease/ -lzlibstat
+    CONFIG(debug, debug|release):contains(QMAKE_TARGET.arch, x86_64): LIBS += -L$$THIRD_PARTY_PATH/zlib/contrib/vstudio/vc14/x64/ZlibStatDebug/ -lzlibstat
+    CONFIG(release, debug|release):!contains(QMAKE_TARGET.arch, x86_64): LIBS += -L$$THIRD_PARTY_PATH/zlib/contrib/vstudio/vc14/x86/ZlibStatRelease/ -lzlibstat
+    CONFIG(debug, debug|release):!contains(QMAKE_TARGET.arch, x86_64): LIBS += -L$$THIRD_PARTY_PATH/zlib/contrib/vstudio/vc14/x86/ZlibStatDebug/ -lzlibstat
 }
 
 !win32 {

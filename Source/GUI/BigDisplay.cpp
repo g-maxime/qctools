@@ -2137,7 +2137,7 @@ void BigDisplay::ShowPicture ()
     ShouldUpate=false;
 
     Picture->FrameAtPosition(Frames_Pos);
-    QImage image = Picture->Image_Get(0);
+    FFmpeg_Glue::Image image = Picture->Image_Get(0);
     if (!image.isNull())
     {
         Image_Width = image.width();

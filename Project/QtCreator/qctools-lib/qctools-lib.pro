@@ -5,6 +5,7 @@ TEMPLATE = lib
 CONFIG += c++11
 CONFIG += staticlib
 
+include(../utils.pri)
 include(../brew.pri)
 include(../ffmpeg.pri)
 
@@ -61,7 +62,7 @@ SOURCES = \
     $$SOURCES_PATH/Core/Preferences.cpp
 
 win32 {
-    INCLUDEPATH += $$[QT_INSTALL_PREFIX]/../src/qtbase/src/3rdparty/zlib
+    INCLUDEPATH += $$THIRD_PARTY_PATH/zlib
 }
 
 include(../blackmagic.pri)

@@ -59,13 +59,12 @@ void ImageLabel::updatePixmap(const QImage& image /*= NULL*/)
     }
     else
     {
-<<<<<<< HEAD
-        auto picture = *Picture;
+        FFmpeg_Glue* picture = *Picture;
 
         QImage Image = image;
         if (Image.isNull())
         {
-            auto frameImage = picture->Image_Get(Pos - 1);
+            FFmpeg_Glue::Image frameImage = picture->Image_Get(Pos - 1);
             if(!frameImage.isNull())
             {
                 Image = QImage(frameImage.data(), frameImage.width(), frameImage.height(), frameImage.linesize(), QImage::Format_RGB888);
@@ -393,7 +392,7 @@ void ImageLabel::rescale()
 
     FFmpeg_Glue* picture = *Picture;
     picture->Scale_Change(size().width(), size().height());
-    QImage image = picture->Image_Get(Pos - 1);
+    FFmpeg_Glue::Image image = picture->Image_Get(Pos - 1);
 
     if (image.isNull())
     {

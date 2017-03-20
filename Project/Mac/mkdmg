@@ -20,7 +20,7 @@ FILES="tmp-${APPNAME}"
 rm -f "{FILES}"
 mkdir "${FILES}"
 mkdir "${FILES}/${APPNAME}.app"
-cp -R "../QtCreator/${APPNAME}.app" "${FILES}/"
+cp -R "../QtCreator/qctools-gui/${APPNAME}.app" "${FILES}/"
 sed -i '' -e "s/VERSION/${VERSION}/g" "${FILES}/${APPNAME}.app/Contents/Info.plist"
 
 macdeployqt "${FILES}/${APPNAME}.app"
