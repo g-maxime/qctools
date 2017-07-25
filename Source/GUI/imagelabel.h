@@ -60,6 +60,7 @@ private Q_SLOTS:
     void on_scalePercentage_horizontalSlider_valueChanged(int value);
     void geometryChangeFinished();
     void geometryChanged(const QRect& geometry);
+    void delayedRescale(const QSize& newSize = QSize());
 
 Q_SIGNALS:
 

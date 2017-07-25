@@ -290,7 +290,7 @@ void ImageLabel::adjustScale(bool delayedRescale)
     QSize newSize;
     if(!ui->fitToScreen_radioButton->isChecked())
     {
-        auto picture = *Picture;
+        FFmpeg_Glue* picture = *Picture;
         double multiplier = ((double) ui->scalePercentage_spinBox->value()) / 100;
         newSize = QSize(pictureWidth(), pictureHeight()) * multiplier;
     }
@@ -300,9 +300,7 @@ void ImageLabel::adjustScale(bool delayedRescale)
     }
     else
     {
-        QTimer::singleShot(0, [=] {
-            rescale(newSize);
-        });
+        QMetaObject::invokeMethod(this, "delayedRescale", Qt::QueuedConnection, Q_ARG(QSize, newSize));
     }
     qDebug() << "leaving imageLabel: adjustScale";
 }
@@ -329,7 +327,7 @@ void ImageLabel::on_scalePercentage_spinBox_valueChanged(int value)
 {
     if(*Picture)
     {
-        auto picture = *Picture;
+        FFmpeg_Glue* picture = *Picture;
         double multiplier = ((double) value) / 100;
 
         QSize newSize = QSize(pictureWidth(), pictureHeight()) * multiplier;
@@ -439,7 +437,7 @@ bool ImageLabel::eventFilter(QObject *object, QEvent *event)
         QSize decodedSize = QSize(0, 0);
         QSize decodedSar = QSize(0, 0);
         double decodedDar = 0.0;
-        auto decodedFrame = picture->DecodedFrame(Pos - 1);
+        FFmpeg_Glue::AVFramePtr decodedFrame = picture->DecodedFrame(Pos - 1);
         if(decodedFrame) {
             decodedSize = QSize(decodedFrame->width, decodedFrame->height);
             decodedSar = QSize(decodedFrame->sample_aspect_ratio.num, decodedFrame->sample_aspect_ratio.den);
@@ -449,7 +447,7 @@ bool ImageLabel::eventFilter(QObject *object, QEvent *event)
         QSize filteredSize = QSize(0, 0);
         QSize filteredSar = QSize(0, 0);
         double filteredDar = 0.0;
-        auto filteredFrame = picture->FilteredFrame(Pos - 1);
+        FFmpeg_Glue::AVFramePtr filteredFrame = picture->FilteredFrame(Pos - 1);
         if(filteredFrame) {
             filteredSize = QSize(filteredFrame->width, filteredFrame->height);
             filteredSar = QSize(filteredFrame->sample_aspect_ratio.num, filteredFrame->sample_aspect_ratio.den);
@@ -459,7 +457,7 @@ bool ImageLabel::eventFilter(QObject *object, QEvent *event)
         QSize scaledSize = QSize(0, 0);
         QSize scaledSar = QSize(0, 0);
         double scaledDar = 0.0;
-        auto scaledFrame = picture->ScaledFrame(Pos - 1);
+        FFmpeg_Glue::AVFramePtr scaledFrame = picture->ScaledFrame(Pos - 1);
         if(scaledFrame) {
             scaledSize = QSize(scaledFrame->width, scaledFrame->height);
             scaledSar = QSize(scaledFrame->sample_aspect_ratio.num, scaledFrame->sample_aspect_ratio.den);
@@ -546,12 +544,12 @@ void ImageLabel::setScaleSpinboxPercentage(int percents)
 
 int ImageLabel::pictureWidth() const
 {
-    if(*Picture == nullptr)
+    if(*Picture == NULL)
     {
         return 0;
     }
 
-    auto picture = *Picture;
+    FFmpeg_Glue* picture = *Picture;
 
     int width = picture->OutputFilterWidth_Get(Pos - 1);
     if(width == 0)
@@ -562,12 +560,12 @@ int ImageLabel::pictureWidth() const
 
 int ImageLabel::pictureHeight() const
 {
-    if(*Picture == nullptr)
+    if(*Picture == NULL)
     {
         return 0;
     }
 
-    auto picture = *Picture;
+    FFmpeg_Glue* picture = *Picture;
 
     int height = picture->OutputFilterHeight_Get(Pos - 1);
     if(height == 0)
@@ -652,4 +650,9 @@ void ImageLabel::geometryChanged(const QRect& geometry)
     selectionSize = originalGeometry.size();
 
     Q_EMIT selectionChanged(originalGeometry);
+}
+
+void ImageLabel::delayedRescale(const QSize& newSize)
+{
+    rescale(newSize);
 }

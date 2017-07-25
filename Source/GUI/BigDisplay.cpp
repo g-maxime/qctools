@@ -1571,10 +1571,7 @@ BigDisplay::BigDisplay(QWidget *parent, FileInformation* FileInformationData_) :
 
     splitter->handle(1)->installEventFilter(this);
     splitter->installEventFilter(this);
-    connect(splitter, &QSplitter::splitterMoved, this, [&] {
-            qDebug() << "splitter moved";
-            timer.start();
-    });
+    connect(splitter, SIGNAL(splitterMoved), this, SLOT(splitterMoved));
 
     Layout->addWidget(splitter, 1, 0, 1, 3);
 
@@ -2693,6 +2690,14 @@ void BigDisplay::resizeEvent(QResizeEvent  *e)
 
     qDebug() << "leaving BigDisplay::resizeEvent";
 }
+
+//---------------------------------------------------------------------------
+void BigDisplay::splitterMoved()
+{
+            qDebug() << "splitter moved";
+            timer.start();
+}
+
 //---------------------------------------------------------------------------
 void DoubleSpinBoxWithSlider::selectionChangedX(const QRectF& geometry)
 {

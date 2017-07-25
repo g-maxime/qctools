@@ -211,6 +211,7 @@ public Q_SLOTS:
     void on_Color2_click(bool checked);
 
     void on_Full_triggered();
+    void splitterMoved();
 
 private Q_SLOTS:
     void onAfterResize();
