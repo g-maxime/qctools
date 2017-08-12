@@ -1,3 +1,5 @@
+DEFINES += __STDC_CONSTANT_MACROS
+
 macx:contains(DEFINES, USE_BREW) {
     message("use ffmpeg from brew")
 
