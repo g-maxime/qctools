@@ -31,6 +31,16 @@ PreferencesDialog::PreferencesDialog(Preferences* preferences, SignalServerConne
 {
     ui->setupUi(this);
 
+#if QT_VERSION >= 0x040700
+    ui->signalServerUrl_lineEdit->setPlaceholderText("Signalserver URL (http://example.com)");
+    ui->signalServerPassword_lineEdit->setPlaceholderText("Password");
+    ui->signalServerLogin_lineEdit->setPlaceholderText("User name");
+#else
+    ui->signalServerUrl_lineEdit->setToolTip("Signalserver URL (http://example.com)");
+    ui->signalServerPassword_lineEdit->setToolTip("Password");
+    ui->signalServerLogin_lineEdit->setToolTip("User name");
+#endif
+
     //Configuration
     connect(this, SIGNAL(accepted()), this, SLOT(OnAccepted()));
     connect(this, SIGNAL(rejected()), this, SLOT(OnRejected()));

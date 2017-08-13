@@ -7,6 +7,13 @@ CommentsEditor::CommentsEditor(QWidget *parent) :
     ui(new Ui::CommentsEditor)
 {
     ui->setupUi(this);
+
+#if QT_VERSION >= 0x050300
+    ui->plainTextEdit->setPlaceholderText("Put your comments here");
+#else
+    ui->plainTextEdit->setToolTip("Put your comments here");
+#endif
+
     ui->buttonBox->button(QDialogButtonBox::Discard)->setText("Delete");
     ui->buttonBox->button(QDialogButtonBox::Discard)->setVisible(false);
 
