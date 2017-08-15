@@ -2,7 +2,7 @@ Format: 3.0 (quilt)
 Source: qctools
 Binary: qctools, qctools-dbg, qcli, qcli-dbg
 Architecture: any
-Version: 0.9
+Version: 0.9-1
 Maintainer: MediaArea.net SARL <info@mediaarea.net>
 Homepage: http://www.bavc.org/qctools
 Standards-Version: 3.7.3

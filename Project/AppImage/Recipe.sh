@@ -50,7 +50,7 @@ function Make_image() {
     popd
 }
 
-VERSION="0.8"
+VERSION="0.9"
 
 if [ "$(arch)" == "i386" ] ; then
     ARCH="i686"
