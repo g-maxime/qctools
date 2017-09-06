@@ -2517,10 +2517,10 @@ void BigDisplay::updateSelection(int Pos, ImageLabel* image, options& opts)
             hIndex = 4;
         }
 
-        DoubleSpinBoxWithSlider& xSpinBox = opts.Sliders_SpinBox[xIndex];
-        DoubleSpinBoxWithSlider& ySpinBox = opts.Sliders_SpinBox[yIndex];
-        DoubleSpinBoxWithSlider& wSpinBox = opts.Sliders_SpinBox[wIndex];
-        DoubleSpinBoxWithSlider& hSpinBox = opts.Sliders_SpinBox[hIndex];
+        DoubleSpinBoxWithSlider* xSpinBox = opts.Sliders_SpinBox[xIndex];
+        DoubleSpinBoxWithSlider* ySpinBox = opts.Sliders_SpinBox[yIndex];
+        DoubleSpinBoxWithSlider* wSpinBox = opts.Sliders_SpinBox[wIndex];
+        DoubleSpinBoxWithSlider* hSpinBox = opts.Sliders_SpinBox[hIndex];
 
         image->setSelectionArea(xSpinBox->value(), ySpinBox->value(), wSpinBox->value(), hSpinBox->value());
 

@@ -146,8 +146,8 @@ void MainWindow::Ui_Init()
 
             if(!selectedFilters.empty())
             {
-                auto checkboxText = CheckBox->text();
-                auto filterSelected = selectedFilters.contains(checkboxText);
+                QString checkboxText = CheckBox->text();
+                bool filterSelected = selectedFilters.contains(checkboxText);
                 CheckBox->setChecked(filterSelected);
             } else
             {
@@ -234,7 +234,7 @@ void MainWindow::Ui_Init()
     int recentFilesIndex = recentFiles.length();
     while(recentFilesIndex-- > 0)
     {
-        auto action = createOpenRecentAction(recentFiles[recentFilesIndex]);
+        QAction* action = createOpenRecentAction(recentFiles[recentFilesIndex]);
 
         if(recentFilesActions.empty())
         {
@@ -362,7 +362,7 @@ void MainWindow::changeFilterSelectorsOrder(QList<QPair<int, int> > filtersInfo)
 
 QAction *MainWindow::createOpenRecentAction(const QString &fileName)
 {
-    auto action = new QAction(fileName, this);
+    QAction* action = new QAction(fileName, this);
     connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
 
     return action;
@@ -373,13 +373,13 @@ void MainWindow::updateRecentFiles(const QString &fileName)
     ui->actionClear_Recent_History->setEnabled(true);
 
     QStringList recentFiles = preferences->recentFiles();
-    auto index = recentFiles.indexOf(fileName);
+    int index = recentFiles.indexOf(fileName);
 
     if(index != 0)
     {
         if(index == -1)
         {
-            auto action = createOpenRecentAction(fileName);
+            QAction* action = createOpenRecentAction(fileName);
 
             if(recentFilesActions.empty())
             {

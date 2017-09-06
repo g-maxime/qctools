@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QPair>
 #include <QList>
+#include <QStringList>
 
 typedef QPair<int, int> GroupAndType;
 typedef QList<GroupAndType> FilterSelectorsOrder;

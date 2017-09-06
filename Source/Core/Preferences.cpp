@@ -84,7 +84,7 @@ QStringList Preferences::loadSelectedFilters()
     QStringList selectedFilters;
     QSettings settings;
 
-    auto selectedFiltersCount = settings.beginReadArray("selectedFilters");
+    int selectedFiltersCount = settings.beginReadArray("selectedFilters");
     for (int selectedFiltersIndex = 0; selectedFiltersIndex < selectedFiltersCount; ++selectedFiltersIndex) {
         settings.setArrayIndex(selectedFiltersIndex);
         selectedFilters.append(settings.value("filterName").toString());
@@ -194,7 +194,7 @@ QStringList Preferences::recentFiles() const
     QSettings settings;
     QStringList recentFiles;
 
-    auto recentFilesCount = settings.beginReadArray("recentFiles");
+    int recentFilesCount = settings.beginReadArray("recentFiles");
     for (int recentFileIndex = 0; recentFileIndex < recentFilesCount; ++recentFileIndex) {
         settings.setArrayIndex(recentFileIndex);
         recentFiles.append(settings.value("file").toString());
@@ -208,7 +208,7 @@ void Preferences::setRecentFiles(const QStringList &recentFiles)
 {
     QSettings settings;
 
-    auto recentFilesCount = recentFiles.size();
+    int recentFilesCount = recentFiles.size();
     settings.beginWriteArray("recentFiles");
     for (int recentFileIndex = 0; recentFileIndex < recentFilesCount; ++recentFileIndex) {
         settings.setArrayIndex(recentFileIndex);

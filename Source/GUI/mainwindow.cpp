@@ -68,10 +68,10 @@ QStringList MainWindow::getSelectedFilters() const
 
     for (size_t type = 0; type < Type_Max; type++)
     {
-        for(auto checkbox : CheckBoxes[type])
+        for(std::vector<QPushButton*>::const_iterator It = CheckBoxes[type].begin(); It != CheckBoxes[type].end(); It++)
         {
-            if(checkbox->isChecked())
-                selectedFilters << checkbox->text();
+            if((*It)->isChecked())
+                selectedFilters << (*It)->text();
         }
     }
 
@@ -885,7 +885,7 @@ void MainWindow::openRecentFile()
     if (const QAction *action = qobject_cast<const QAction *>(sender()))
     {
         bool fileAlreadyOpened = false;
-        for(auto i = 0; i < ui->fileNamesBox->count(); ++i)
+        for(int i = 0; i < ui->fileNamesBox->count(); ++i)
         {
             if(ui->fileNamesBox->itemText(i) == action->text())
             {
@@ -950,9 +950,9 @@ bool MainWindow::isFileSelected() const
 
 void MainWindow::on_actionClear_Recent_History_triggered()
 {
-    for(auto action : recentFilesActions)
+    for (QList<QAction*>::iterator It = recentFilesActions.begin(); It != recentFilesActions.end(); ++It)
     {
-        ui->menuFile->removeAction(action);
+        ui->menuFile->removeAction(*It);
     }
 
     recentFilesActions.clear();
