@@ -131,8 +131,8 @@ public:
     }
     QPointF sample(size_t i) const {
 
-        auto xData = m_stats->x[m_xDataIndex];
-        auto yData = m_stats->y[m_yDataIndex];
+        double* xData = m_stats->x[m_xDataIndex];
+        double* yData = m_stats->y[m_yDataIndex];
 
         return QPointF(xData[i], (m_boolean ? toBoolean(yData[i], 1.0) : yData[i]));
     }
@@ -142,12 +142,12 @@ public:
     }
 
     double toBoolean(double y, double globalMax) const {
-        auto value = toBoolean(y);
+        double value = toBoolean(y);
 
-        auto min = globalMax * (m_curveIndex) / m_curvesCount;
-        auto max = globalMax * (m_curveIndex + 1) / m_curvesCount;
+        double min = globalMax * (m_curveIndex) / m_curvesCount;
+        double max = globalMax * (m_curveIndex + 1) / m_curvesCount;
 
-        auto adjustedValue = min + value * (max - min) * 0.9;
+        double adjustedValue = min + value * (max - min) * 0.9;
 
         return adjustedValue;
     }
@@ -248,7 +248,7 @@ public:
     int frameAt( double x ) const;
 
     void addGuidelines(int bitsPerRawSample);
-    virtual void setVisible(bool visible) override;
+    virtual void setVisible(bool visible);
 
     void updateSymbols();
 Q_SIGNALS:

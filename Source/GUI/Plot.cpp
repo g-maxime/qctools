@@ -236,7 +236,7 @@ protected:
 
         for ( int i = from; i <= to; ++i )
         {
-            auto y = data()->sample(i).ry();
+            double y = data()->sample(i).ry();
             if(!qFuzzyCompare(y, booleanZero))
             {
                 const QPolygonF points = mapper.toPointsF(xMap, yMap,
@@ -330,24 +330,24 @@ void Plot::updateSymbols()
 {
     if(m_boolean)
     {
-        for(auto curve : m_curves)
+        for(QVector<QwtPlotCurve*>::iterator It = m_curves.begin(); It != m_curves.end(); It++)
         {
-            curve->setStyle(QwtPlotCurve::Dots);
+            (*It)->setStyle(QwtPlotCurve::Dots);
 
             QwtSymbol *symbol = new PlotSymbol();
-            symbol->setBrush(curve->pen().color());
+            symbol->setBrush((*It)->pen().color());
             symbol->setPen(Qt::transparent);
 
             QwtPointMapper mapper;
             mapper.setBoundingRect(this->canvas()->rect());
 
             int symbolWidth = 0;
-            auto curveData = curve->data();
+            QwtSeriesData<QPointF>* curveData = (*It)->data();
             if(curveData->size() > 1) {
-                auto map = canvasMap(QwtPlot::xBottom);
+                QwtScaleMap map = canvasMap(QwtPlot::xBottom);
 
-                double transformed1 = map.transform(curve->data()->sample(0).x());
-                double transformed2 = map.transform(curve->data()->sample(1).x());
+                double transformed1 = map.transform((*It)->data()->sample(0).x());
+                double transformed2 = map.transform((*It)->data()->sample(1).x());
 
                 double dt = transformed2 - transformed1;
 
@@ -356,18 +356,18 @@ void Plot::updateSymbols()
             if(symbolWidth == 0)
                 symbolWidth = 1;
 
-            auto symbolHeight = int(double(canvas()->size().height()) / m_curves.size() * 0.8);
+            int symbolHeight = int(double(canvas()->size().height()) / m_curves.size() * 0.8);
 
             symbol->setSize(QSize(symbolWidth, symbolHeight));
-            curve->setSymbol( symbol );
+            (*It)->setSymbol( symbol );
         }
     }
     else
     {
-        for(auto curve : m_curves)
+        for(QVector<QwtPlotCurve*>::iterator It = m_curves.begin(); It != m_curves.end(); It++)
         {
-            curve->setStyle(QwtPlotCurve::Lines);
-            curve->setSymbol(nullptr);
+            (*It)->setStyle(QwtPlotCurve::Lines);
+            (*It)->setSymbol(NULL);
         }
     }
 }

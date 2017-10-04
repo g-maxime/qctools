@@ -70,6 +70,9 @@ Plots::Plots( QWidget *parent, FileInformation* fileInformation ) :
     m_plots = new Plot**[m_fileInfoData->Stats.size()];
     m_plotsCount = 0;
 
+    signalMapper = new QSignalMapper(this);
+    connect(signalMapper, SIGNAL(mapped(QObject*)),this, SLOT(toolBtnClicked(QObject*)));
+
     for ( size_t streamPos = 0; streamPos < m_fileInfoData->Stats.size(); streamPos++ )
     {
         if (m_fileInfoData->Stats[streamPos])
@@ -89,7 +92,7 @@ Plots::Plots( QWidget *parent, FileInformation* fileInformation ) :
                     const size_t plotGroup = plot->group();
                     const CommonStats* stat = stats( plot->streamPos() );
 
-                    auto streamInfo = PerStreamType[plotType];
+                    stream_info streamInfo = PerStreamType[plotType];
 
                     plot->addGuidelines(m_fileInfoData->BitsPerRawSample());
 
@@ -118,54 +121,8 @@ Plots::Plots( QWidget *parent, FileInformation* fileInformation ) :
                     legendLayout->addItem(new QSpacerItem(0, 0));
                     QToolButton* booleanConfigButton = new QToolButton();
                     connect(plot, SIGNAL(visibilityChanged(bool)), booleanConfigButton, SLOT(setVisible(bool)));
-                    connect(booleanConfigButton, &QToolButton::clicked, this, [=] {
-                        QDialog dialog;
-                        dialog.setWindowTitle("Edit boolean conditions");
-                        QVBoxLayout* vbox = new QVBoxLayout;
-                        dialog.setLayout(vbox);
-
-                        QList<QPair<PlotSeriesData*, BooleanChartConditionEditor*>> pairs;
-
-                        for(size_t j = 0; j < streamInfo.PerGroup[plotGroup].Count; ++j)
-                        {
-                            PlotSeriesData* data = const_cast<PlotSeriesData*>(static_cast<const PlotSeriesData*> (plot->getData(j)));
-                            auto conditionEditor = new BooleanChartConditionEditor(nullptr);
-                            auto curve = dynamic_cast<const QwtPlotCurve*>( plot->getCurve(j) );
-
-                            QString title = curve->title().text();
-                            conditionEditor->setLabel(title);
-                            conditionEditor->setColor(curve->pen().color());
-
-                            conditionEditor->setLessThan(data->condition().lessThanFormula);
-                            conditionEditor->setMoreThan(data->condition().moreThanFormula);
-
-                            vbox->insertWidget(0, conditionEditor);
-                            pairs.append(QPair<PlotSeriesData*, BooleanChartConditionEditor*>(data, conditionEditor));
-                        }
-
-                        auto dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
-                        connect(dialogButtonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), &dialog, SLOT(accept()));
-                        connect(dialogButtonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), &dialog, SLOT(reject()));
-
-                        dialog.layout()->addWidget(dialogButtonBox);
-                        if(QDialog::Accepted == dialog.exec())
-                        {
-                            for(auto pair : pairs) {
-                                auto data = pair.first;
-                                auto editor = pair.second;
-
-                                QString lessThan = editor->getLessThan();
-                                QString moreThan = editor->getMoreThan();
-
-                                data->condition().lessThanFormula = lessThan;
-                                data->condition().moreThanFormula = moreThan;
-                                data->condition().update();
-                            }
-
-                            plot->updateSymbols();
-                            plot->replot();
-                        }
-                    });
+                    connect(booleanConfigButton, SIGNAL(clicked(bool)), signalMapper, SLOT(map()));
+                    signalMapper->setMapping(booleanConfigButton, dynamic_cast<QObject*>(plot));
 
                     legendLayout->addWidget(booleanConfigButton);
 
@@ -178,7 +135,7 @@ Plots::Plots( QWidget *parent, FileInformation* fileInformation ) :
                     {
                         size_t yIndex = streamInfo.PerGroup[plotGroup].Start + j;
 
-                        auto seriesData = new PlotSeriesData(stats( plot->streamPos()), m_dataTypeIndex, yIndex, plotGroup, j, streamInfo.PerGroup[plotGroup].Count);
+                         PlotSeriesData* seriesData = new PlotSeriesData(stats( plot->streamPos()), m_dataTypeIndex, yIndex, plotGroup, j, streamInfo.PerGroup[plotGroup].Count);
                         plot->setData(j, seriesData);
                         connect(booleanPlotSwitch, SIGNAL(toggled(bool)), seriesData, SLOT(setBoolean(bool)));
                     }
@@ -781,7 +738,7 @@ void Plots::zoomXAxis( ZoomTypes zoomType )
     {
         if ( m_fileInfoData->Stats[streamPos] && m_plots[streamPos] )
         {
-            auto type = m_fileInfoData->Stats[streamPos]->Type_Get();
+            size_t type = m_fileInfoData->Stats[streamPos]->Type_Get();
 
             for ( size_t group = 0; group < PerStreamType[type].CountOfGroups; group++ )
                 if (m_plots[streamPos][group]) {
@@ -826,5 +783,58 @@ void Plots::replotAll()
     {
         m_commentsPlot->setAxisScaleDiv( QwtPlot::xBottom, m_scaleWidget->scaleDiv() );
         m_commentsPlot->replot();
+    }
+}
+
+void Plots::toolBtnClicked(QObject* obj)
+{
+    Plot* plot = dynamic_cast<Plot*>(obj);
+    stream_info streamInfo = PerStreamType[plot->type()];
+
+    QDialog dialog;
+    dialog.setWindowTitle("Edit boolean conditions");
+    QVBoxLayout* vbox = new QVBoxLayout;
+    dialog.setLayout(vbox);
+
+    QList<QPair<PlotSeriesData*, BooleanChartConditionEditor*> > pairs;
+
+    for(size_t i = 0; i < streamInfo.PerGroup[plot->group()].Count; ++i)
+    {
+        PlotSeriesData* data = const_cast<PlotSeriesData*>(static_cast<const PlotSeriesData*> (plot->getData(i)));
+        BooleanChartConditionEditor* conditionEditor = new BooleanChartConditionEditor(NULL);
+        const QwtPlotCurve* curve = dynamic_cast<const QwtPlotCurve*>( plot->getCurve(i) );
+
+        QString title = curve->title().text();
+        conditionEditor->setLabel(title);
+        conditionEditor->setColor(curve->pen().color());
+
+        conditionEditor->setLessThan(data->condition().lessThanFormula);
+        conditionEditor->setMoreThan(data->condition().moreThanFormula);
+
+        vbox->insertWidget(0, conditionEditor);
+        pairs.append(QPair<PlotSeriesData*, BooleanChartConditionEditor*>(data, conditionEditor));
+    }
+
+    QDialogButtonBox* dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    connect(dialogButtonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), &dialog, SLOT(accept()));
+    connect(dialogButtonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), &dialog, SLOT(reject()));
+
+    dialog.layout()->addWidget(dialogButtonBox);
+    if(QDialog::Accepted == dialog.exec())
+    {
+        for(int i = 0; i < pairs.size(); i++) {
+            PlotSeriesData* data = pairs[i].first;
+            BooleanChartConditionEditor* editor = pairs[i].second;
+
+            QString lessThan = editor->getLessThan();
+            QString moreThan = editor->getMoreThan();
+
+            data->condition().lessThanFormula = lessThan;
+            data->condition().moreThanFormula = moreThan;
+            data->condition().update();
+        }
+
+        plot->updateSymbols();
+        plot->replot();
     }
 }

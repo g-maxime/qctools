@@ -15,6 +15,7 @@
 #include "GUI/Comments.h"
 
 #include <QWidget>
+#include <QSignalMapper>
 
 class QwtPlot;
 class Plot;
@@ -105,6 +106,7 @@ public:
 
 public Q_SLOTS:
     void                        onCurrentFrameChanged();
+    void                        toolBtnClicked(QObject* obj);
 
 private Q_SLOTS:
     void                        onCursorMoved( int index );
@@ -128,6 +130,7 @@ private:
     void                        setFramePos( size_t framePos, size_t statsPos = (size_t)-1 ) const { m_fileInfoData->Frames_Pos_Set(framePos, statsPos); }
 
 private:
+    QSignalMapper*              signalMapper;
     PlotScaleWidget*            m_scaleWidget;
     CommentsPlot*               m_commentsPlot;
     Plot***                     m_plots; // pointer on an array of streams and groups per stream and Plot* per group
