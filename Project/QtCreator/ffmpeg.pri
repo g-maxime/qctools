@@ -26,7 +26,19 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
         FFMPEG_INCLUDES=$$FFMPEG
     }
 
-    exists($$FFMPEG/lib) {
+    win32:!contains(STATIC, yes|1):exists($$FFMPEG/bin) {
+        FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_AVFORMAT=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_POSTPROC=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_SWRESAMPLE=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_SWSCALE=$$absolute_path($$FFMPEG/bin)
+        FFMPEG_AVUTIL=$$absolute_path($$FFMPEG/bin)
+
+        FFMPEG_LIBS += \
+                    -L$$absolute_path($$FFMPEG/bin) -lavdevice -lavcodec -lavfilter -lavformat -lpostproc -lswresample -lswscale -lavutil
+    } else:exists($$FFMPEG/lib) {
         FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/lib)
@@ -36,16 +48,8 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
         FFMPEG_SWSCALE=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVUTIL=$$absolute_path($$FFMPEG/lib)
 
-        FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/lib) \
-                        -lavdevice \
-                        -lavcodec \
-                        -lavfilter \
-                        -lavformat \
-                        -lpostproc \
-                        -lswresample \
-                        -lswscale \
-                        -lavutil
-
+        FFMPEG_LIBS += \
+                     -L$$absolute_path($$FFMPEG/lib) -lavdevice -lavfilter -lavformat -lavcodec -lpostproc -lswresample -lswscale -lavutil
     } else {
         FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/libavdevice)
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/libavcodec)
@@ -58,14 +62,20 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
 
         FFMPEG_LIBS += \
                      -L$$FFMPEG_AVDEVICE -lavdevice \
-                     -L$$FFMPEG_AVCODEC -lavcodec \
                      -L$$FFMPEG_AVFILTER -lavfilter \
                      -L$$FFMPEG_AVFORMAT -lavformat \
+                     -L$$FFMPEG_AVCODEC -lavcodec \
                      -L$$FFMPEG_POSTPROC -lpostproc \
                      -L$$FFMPEG_SWRESAMPLE -lswresample \
                      -L$$FFMPEG_SWSCALE -lswscale \
                      -L$$FFMPEG_AVUTIL -lavutil
+    }
 
+    unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
+    unix:!mac:FFMPEG_LIBS += -lxcb -lxcb-shm -lxcb-xfixes -lxcb-render -lxcb-shape
+    win32:contains(STATIC, yes|1) {
+        contains(QT_ARCH, x86_64):FFMPEG_LIBS += -L$$absolute_path("$$FFMPEG/../freetype/objs/x64/ReleaseStatic") -lfreetype
+        else:FFMPEG_LIBS += -L$$absolute_path("$$FFMPEG/../freetype/objs/Win32/ReleaseStatic") -lfreetype
     }
 
     INCLUDEPATH += $$FFMPEG_INCLUDES

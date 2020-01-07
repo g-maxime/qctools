@@ -7,7 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport qml
 TARGET = QCTools
 TEMPLATE = app
 
-CONFIG += c++11 qt
+CONFIG += c++14 qt no_keywords
 
 message("PWD = " $$PWD)
 
@@ -220,13 +220,14 @@ greaterThan(QT_MAJOR_VERSION, 5) {
     }
 }
 
-win32-g++* {
-    LIBS += -lbcrypt -lwsock32 -lws2_32
+macx {
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
+    QMAKE_INFO_PLIST = ../../Mac/Info.plist
 }
 
 macx:ICON = $$SOURCES_PATH/Resource/Logo.icns
 macx:LIBS += -liconv \
-	     -framework CoreFoundation \
+             -framework CoreFoundation \
              -framework Foundation \
              -framework AppKit \
              -framework AudioToolBox \
