@@ -5,6 +5,8 @@ TEMPLATE = lib
 CONFIG += c++11
 CONFIG += staticlib
 
+QMAKE_CXXFLAGS += -std=c++11
+
 include(../brew.pri)
 
 message('qctools-lib: including ffmpeg')

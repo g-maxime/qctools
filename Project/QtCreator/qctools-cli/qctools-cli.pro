@@ -2,6 +2,7 @@ QT += core network
 QT -= gui
 
 CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
 
 TARGET = qcli
 CONFIG += console
@@ -11,6 +12,8 @@ TEMPLATE = app
 
 include(../brew.pri)
 message("PWD = " $$PWD)
+
+win32:RC_FILE = qcli.rc
 
 # link against libqctools
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qctools-lib/release/ -lqctools

@@ -62,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Thumbnails_Modulo(1),
     ui(new Ui::MainWindow)
 {
+    QtAV::Widgets::registerRenderers();
+
     qRegisterMetaType<SharedFile>("SharedFile");
 
     // FilesList
