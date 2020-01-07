@@ -18,12 +18,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "MediaArea.net"
-            VALUE "FileDescription", "QCTools"
+            VALUE "FileDescription", "QCTools CLI"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "QCTools - GUI - MSVC 2017"
+            VALUE "InternalName", "QCTools - CLI - MSVC 2017"
             VALUE "LegalCopyright", "BAVC.org"
-            VALUE "OriginalFilename", "QCTools.exe"
-            VALUE "ProductName", "QCTools"
+            VALUE "OriginalFilename", "qcli.exe"
+            VALUE "ProductName", "qcli"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

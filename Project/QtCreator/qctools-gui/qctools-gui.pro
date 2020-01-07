@@ -1,7 +1,7 @@
 QT       += core gui network
 
-QMAKEFEATURES = C:/Users/ai/Projects/qctools/qctools/Source/ThirdParty/QtAV/mkspecs/features
-message("!!! QMAKEFEATURES = " $$QMAKEFEATURES)
+#QMAKEFEATURES = C:/Users/ai/Projects/qctools/qctools/Source/ThirdParty/QtAV/mkspecs/features
+#message("!!! QMAKEFEATURES = " $$QMAKEFEATURES)
 
 #QT += avwidgets
 
@@ -11,9 +11,13 @@ TARGET = QCTools
 TEMPLATE = app
 
 CONFIG += c++11 qt no_keywords
+QMAKE_CXXFLAGS += -std=c++11
 
 include(../brew.pri)
 message("PWD = " $$PWD)
+
+
+win32:RC_FILE = QCTools.rc
 
 # link against libqctools
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qctools-lib/release/ -lqctools
@@ -23,29 +27,18 @@ else:unix: LIBS += -L$$OUT_PWD/../qctools-lib/ -lqctools
 INCLUDEPATH += $$PWD/../qctools-lib
 DEPENDPATH += $$PWD/../qctools-lib
 
-defineReplace(platformTargetSuffix) {
-    ios:CONFIG(iphonesimulator, iphonesimulator|iphoneos): \
-        suffix = _iphonesimulator
-    else: \
-        suffix =
-
-    CONFIG(debug, debug|release) {
-        !debug_and_release|build_pass {
-            mac: return($${suffix}_debug)
-            win32: return($${suffix}d)
-        }
-    }
-    return($$suffix)
+#TODO: works only for x86_64 and x86
+win32 {
+    contains(QT_ARCH, x86_64):QTAVLIBFOLDER=lib_win_x86_64
+    else:QTAVLIBFOLDER=lib_win_x86
 }
-
-win32: {
-    QTAVLIBFOLDER=lib_win_x86_64
+else:linux {
+    contains(QT_ARCH, x86_64):QTAVLIBFOLDER=lib_linux_x86_64
+    else:QTAVLIBFOLDER=lib_linux_x86
 }
-linux: {
-    QTAVLIBFOLDER=lib_linux_x86_64
-}
-mac: {
-    QTAVLIBFOLDER=lib_osx_x86_64_llvm
+else:mac {
+    contains(QT_ARCH, x86_64):QTAVLIBFOLDER=lib_osx_x86_64_llvm
+    else:QTAVLIBFOLDER=QTAVLIBFOLDER=lib_osx_x86_llvm
 }
 
 QTAV = $$QTAV
@@ -57,6 +50,7 @@ message('qctools-gui: QTAV: ' $$QTAV)
 
 message('QTAVLIBFOLDER: ' $$QTAVLIBFOLDER)
 INCLUDEPATH += $$absolute_path($$QTAV/src) $$absolute_path($$QTAV/src/QtAV)
+INCLUDEPATH += $$absolute_path($$QTAV/widgets) $$absolute_path($$QTAV/widgets/QtAVWidgets)
 
 if(equals(MAKEFILE_GENERATOR, MSVC.NET)|equals(MAKEFILE_GENERATOR, MSBUILD)) {
   TRY_COPY = $$QMAKE_COPY
@@ -66,67 +60,81 @@ if(equals(MAKEFILE_GENERATOR, MSVC.NET)|equals(MAKEFILE_GENERATOR, MSBUILD)) {
 
 message('TRY_COPY: ' $$TRY_COPY)
 
-mac: {
-    QTAVLIBS = -F$$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER) -framework QtAV$$platformTargetSuffix()
-
-    qtavlibs.pattern = $$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER/$${QTAVLIBNAME}*)
-    message('qtavlibs.pattern: ' $$qtavlibs.pattern)
-
-    qtavlibs.files = $$files($$qtavlibs.pattern)
-    message('qtavlibs.files: ' $$qtavlibs.files)
-
-    qtavlibs.path = $$absolute_path($$OUT_PWD$${BUILD_DIR}/$${TARGET}.app/Contents/Frameworks)
-    message('qtavlibs.path: ' $$qtavlibs.path)
-
-    qtavlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_MKDIR_CMD $$shell_path($$qtavlibs.path)
-
-    for(f, qtavlibs.files) {
-      message('***: ' $$escape_expand(\\n\\t)$$QMAKE_COPY_DIR $$shell_path($$f) $$shell_path($$qtavlibs.path))
-      qtavlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_COPY_DIR $$shell_path($$f) $$shell_path($$qtavlibs.path)
+BUILD_SUFFIX=
+win32 {
+    CONFIG(debug, debug|release):!debug_and_release {
+        BUILD_SUFFIX=d
+        BUILD_DIR=/debug
     }
+    else:CONFIG(release, debug|release) {
+        BUILD_SUFFIX=1
+        BUILD_DIR=/release
+    }
+}
+mac:CONFIG(debug, debug|release):!debug_and_release: BUILD_SUFFIX=_debug
 
-    isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK = $$qtavlibs.commands
-    else: QMAKE_POST_LINK = $${QMAKE_POST_LINK}$$escape_expand(\\n\\t)$$qtavlibs.commands
 
-    message('QMAKE_POST_LINK: ' $${QMAKE_POST_LINK})
+QTAVLIBNAME = QtAV$${BUILD_SUFFIX}
+QTAVWIDGETSLIBNAME = QtAVWidgets$${BUILD_SUFFIX}
+
+message('QTAVLIBNAME: ' $${QTAVLIBNAME})
+
+mac: {
+    QTAVLIBS += -L$$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER) -l$${QTAVLIBNAME}
+    QTAVLIBS += -L$$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER) -l$${QTAVWIDGETSLIBNAME}
+
+    #qtavlibs.pattern = $$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER/$${QTAVLIBNAME}*)
+    #message('qtavlibs.pattern: ' $$qtavlibs.pattern)
+
+    #qtavlibs.files = $$files($$qtavlibs.pattern)
+    #message('qtavlibs.files: ' $$qtavlibs.files)
+
+    #qtavlibs.path = $$absolute_path($$OUT_PWD$${BUILD_DIR}/$${TARGET}.app/Contents/Frameworks)
+    #message('qtavlibs.path: ' $$qtavlibs.path)
+
+    #qtavlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_MKDIR_CMD $$shell_path($$qtavlibs.path)
+
+    #for(f, qtavlibs.files) {
+    #  message('***: ' $$escape_expand(\\n\\t)$$QMAKE_COPY_DIR $$shell_path($$f) $$shell_path($$qtavlibs.path))
+    #  qtavlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_COPY_DIR $$shell_path($$f) $$shell_path($$qtavlibs.path)
+    #}
+
+    #isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK = $$qtavlibs.commands
+    #else: QMAKE_POST_LINK = $${QMAKE_POST_LINK}$$escape_expand(\\n\\t)$$qtavlibs.commands
+
+    #message('QMAKE_POST_LINK: ' $${QMAKE_POST_LINK})
 
 } else {
-    win32: {
-        CONFIG(debug, debug|release) {
-            BUILD_SUFFIX=d
-            BUILD_DIR=/debug
-        } else:CONFIG(release, debug|release) {
-            BUILD_SUFFIX=
-            BUILD_DIR=/release
-        }
-        QTAVLIBNAME = QtAV$${BUILD_SUFFIX}1
-    } else {
-        QTAVLIBNAME = QtAV$${BUILD_SUFFIX}
-    }
-    message('QTAVLIBNAME: ' $${QTAVLIBNAME})
-
     QTAVLIBS += -L$$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER) -l$${QTAVLIBNAME}
-    qtavlibs.pattern = $$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER/*.$$QMAKE_EXTENSION_SHLIB)
-    message('qtavlibs.pattern: ' $$qtavlibs.pattern)
+    QTAVLIBS += -L$$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER) -l$${QTAVWIDGETSLIBNAME}
+    unix:QTAVLIBS += -lX11 -lXext
 
-    qtavlibs.files = $$files($$qtavlibs.pattern)
-    message('qtavlibs.files: ' $$qtavlibs.files)
+    win32 {
+        qtavlibs.pattern = $$absolute_path($$OUT_PWD/../qctools-qtav/$$QTAVLIBFOLDER/*.$$QMAKE_EXTENSION_SHLIB)
+        message('qtavlibs.pattern: ' $$qtavlibs.pattern)
 
-    qtavlibs.path = $$absolute_path($$OUT_PWD$${BUILD_DIR})
-    for(f, qtavlibs.files) {
-      message('***: ' $$escape_expand(\\n\\t)$$TRY_COPY $$shell_path($$f) $$shell_path($$qtavlibs.path))
-      qtavlibs.commands += $$escape_expand(\\n\\t)$$TRY_COPY $$shell_path($$f) $$shell_path($$qtavlibs.path)
+        qtavlibs.files = $$files($$qtavlibs.pattern)
+        message('qtavlibs.files: ' $$qtavlibs.files)
+
+        qtavlibs.path = $$absolute_path($$OUT_PWD$${BUILD_DIR})
+        for(f, qtavlibs.files) {
+          message('***: ' $$escape_expand(\\n\\t)$$TRY_COPY $$shell_path($$f) $$shell_path($$qtavlibs.path))
+          qtavlibs.commands += $$escape_expand(\\n\\t)$$TRY_COPY $$shell_path($$f) $$shell_path($$qtavlibs.path)
+        }
+
+        isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK = $$qtavlibs.commands
+        else: QMAKE_POST_LINK = $${QMAKE_POST_LINK}$$escape_expand(\\n\\t)$$qtavlibs.commands
+
+        message('QMAKE_POST_LINK: ' $${QMAKE_POST_LINK})
     }
-
-    isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK = $$qtavlibs.commands
-    else: QMAKE_POST_LINK = $${QMAKE_POST_LINK}$$escape_expand(\\n\\t)$$qtavlibs.commands
-
-    message('QMAKE_POST_LINK: ' $${QMAKE_POST_LINK})
 }
 
 message('QTAVLIBS: ' $$QTAVLIBS)
 
 LIBS += $$QTAVLIBS
+
+#!include($$QTAV/src/libQtAV.pri): error("could not find libQtAV.pri")
+#!include($$QTAV/widgets/libQtAVWidgets.pri): error("could not find libQtAVWidgets.pri")
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qctools-lib/release/libqctools.a
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qctools-lib/debug/libqctools.a
@@ -334,22 +342,22 @@ INCLUDEPATH += $$SOURCES_PATH
 INCLUDEPATH += $$SOURCES_PATH/ThirdParty/cqmarkdown
 include(../ffmpeg.pri)
 
-!win32 {
-    LIBS += -lz
+win32 {
+    LIBS += -lSecur32
 }
-
-!win32 {
-    LIBS      += -lbz2
-}
-
-unix {
-    LIBS       += -ldl
+else {
+    LIBS += -lz -lbz2 -lm -ldl
     !macx:LIBS += -lrt
+}
+
+macx {
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
+    QMAKE_INFO_PLIST = ../../Mac/Info.plist
 }
 
 macx:ICON = $$SOURCES_PATH/Resource/Logo.icns
 macx:LIBS += -liconv \
-	     -framework CoreFoundation \
+             -framework CoreFoundation \
              -framework Foundation \
              -framework AppKit \
              -framework AudioToolBox \

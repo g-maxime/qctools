@@ -5,6 +5,8 @@ TEMPLATE = lib
 CONFIG += c++11
 CONFIG += staticlib
 
+QMAKE_CXXFLAGS += -std=c++11
+
 include(../brew.pri)
 
 message('qctools-lib: including ffmpeg')
@@ -65,13 +67,7 @@ SOURCES = \
     $$SOURCES_PATH/Core/FFmpegVideoEncoder.cpp
 
 win32 {
-    greaterThan(QT_MAJOR_VERSION, 4): {
-        greaterThan(QT_MINOR_VERSION, 8): {
-            ZLIB_INCLUDE_PATH = $$absolute_path($$[QT_INSTALL_PREFIX]/../src/qtbase/src/3rdparty/zlib/src)
-        } else {
-            ZLIB_INCLUDE_PATH = $$absolute_path($$[QT_INSTALL_PREFIX]/../src/qtbase/src/3rdparty/zlib)
-        }
-    }
+    ZLIB_INCLUDE_PATH = $$[QT_INSTALL_HEADERS]/QtZlib
     message("qctools-lib: ZLIB_INCLUDE_PATH = " $$ZLIB_INCLUDE_PATH)
     INCLUDEPATH += $$ZLIB_INCLUDE_PATH
 }

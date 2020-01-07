@@ -2,6 +2,7 @@ QT += core network
 QT -= gui
 
 CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
 
 TARGET = qcli
 CONFIG += console
@@ -11,6 +12,8 @@ TEMPLATE = app
 
 include(../brew.pri)
 message("PWD = " $$PWD)
+
+win32:RC_FILE = qcli.rc
 
 # link against libqctools
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qctools-lib/release/ -lqctools
@@ -53,16 +56,11 @@ DEFINES += QT_DEPRECATED_WARNING
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-!win32 {
-    LIBS += -lz
+win32 {
+    LIBS += -lSecur32
 }
-
-!win32 {
-    LIBS      += -lbz2
-}
-
-unix {
-    LIBS       += -ldl
+else {
+    LIBS += -lz -lbz2 -lm -ldl
     !macx:LIBS += -lrt
 }
 
