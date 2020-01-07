@@ -1,7 +1,7 @@
 macx:contains(DEFINES, USE_BREW) {
     message("use ffmpeg from brew")
 
-    PKGCONFIG += libavdevice libavcodec libavfilter libavformat libpostproc
+    PKGCONFIG += libavcodec libavfilter libavformat libpostproc
     PKGCONFIG += libswresample libswscale libavcodec libavutil
 
     CONFIG += link_pkgconfig
@@ -20,7 +20,6 @@ macx:contains(DEFINES, USE_BREW) {
     }
 
     win32:exists($$FFMPEG/bin) {
-        FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/bin)
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/bin)
         FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/bin)
         FFMPEG_AVFORMAT=$$absolute_path($$FFMPEG/bin)
@@ -29,17 +28,9 @@ macx:contains(DEFINES, USE_BREW) {
         FFMPEG_SWSCALE=$$absolute_path($$FFMPEG/bin)
         FFMPEG_AVUTIL=$$absolute_path($$FFMPEG/bin)
 
-        FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/bin) \
-                        -lavdevice \
-                        -lavcodec \
-                        -lavfilter \
-                        -lavformat \
-                        -lpostproc \
-                        -lswresample \
-                        -lswscale \
-                        -lavutil
+        FFMPEG_LIBS += \
+                    -L$$absolute_path($$FFMPEG/bin) -lavcodec -lavfilter -lavformat -lpostproc -lswresample -lswscale -lavutil
     } else:exists($$FFMPEG/lib) {
-        FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVFORMAT=$$absolute_path($$FFMPEG/lib)
@@ -48,18 +39,10 @@ macx:contains(DEFINES, USE_BREW) {
         FFMPEG_SWSCALE=$$absolute_path($$FFMPEG/lib)
         FFMPEG_AVUTIL=$$absolute_path($$FFMPEG/lib)
 
-        FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/lib) \
-                        -lavdevice \
-                        -lavcodec \
-                        -lavfilter \
-                        -lavformat \
-                        -lpostproc \
-                        -lswresample \
-                        -lswscale \
-                        -lavutil
+        FFMPEG_LIBS += \
+                     -L$$absolute_path($$FFMPEG/lib) -lavfilter -lavformat -lavcodec -lpostproc -lswresample -lswscale -lavutil
 
     } else {
-        FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/libavdevice)
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/libavcodec)
         FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/libavfilter)
         FFMPEG_AVFORMAT=$$absolute_path($$FFMPEG/libavformat)
@@ -69,16 +52,16 @@ macx:contains(DEFINES, USE_BREW) {
         FFMPEG_AVUTIL=$$absolute_path($$FFMPEG/libavutil)
 
         FFMPEG_LIBS += \
-                     -L$$FFMPEG_AVDEVICE -lavdevice \
-                     -L$$FFMPEG_AVCODEC -lavcodec \
                      -L$$FFMPEG_AVFILTER -lavfilter \
                      -L$$FFMPEG_AVFORMAT -lavformat \
+                     -L$$FFMPEG_AVCODEC -lavcodec \
                      -L$$FFMPEG_POSTPROC -lpostproc \
                      -L$$FFMPEG_SWRESAMPLE -lswresample \
                      -L$$FFMPEG_SWSCALE -lswscale \
                      -L$$FFMPEG_AVUTIL -lavutil
-
     }
+
+    unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
 
     INCLUDEPATH += $$FFMPEG_INCLUDES
     LIBS += $$FFMPEG_LIBS

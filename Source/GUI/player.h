@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <QtAV>
+#include <QtAVWidgets>
 
 class FileInformation;
 class FilterSelector;

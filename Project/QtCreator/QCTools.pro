@@ -54,6 +54,12 @@ contains(DEFINES, USE_BREW) {
     write_file($$QTAV/.qmake.conf, staticffmpeg, append)
 }
 
+staticLibs = "CONFIG += staticlib"
+unix:write_file($$QTAV/.qmake.conf, staticLibs, append)
+
+staticFfmpeg="CONFIG += static_ffmpeg"
+unix:write_file($$QTAV/.qmake.conf, staticFfmpeg, append)
+
 linux: {
 fpic = "QMAKE_CXXFLAGS += -fPIC"
 write_file($$QTAV/.qmake.conf, fpic, append)
