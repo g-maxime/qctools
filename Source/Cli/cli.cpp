@@ -286,13 +286,10 @@ int Cli::exec(QCoreApplication &a)
         return InvalidInput;
     }
 
-    std::vector<size_t> framesCountForAllStreams = info->Glue->FramesCountForAllStreams();
-    size_t indexOfStreamWithKnownTotal = 0;
-
-    for(size_t i = 0; i < framesCountForAllStreams.size(); ++i)
+    for(int i = 0; i < info->Glue->StreamCount_Get(); ++i)
     {
-        if(framesCountForAllStreams[i] > framesCountForAllStreams[indexOfStreamWithKnownTotal])
-            indexOfStreamWithKnownTotal = i;
+        if(info->Glue->FramesCountPerStream(i) > info->Glue->FramesCountPerStream(indexOfStreamWithKnownFrameCount))
+            indexOfStreamWithKnownFrameCount = i;
     }
 
     if(!info->hasStats() || forceOutput)
@@ -436,8 +433,10 @@ int Cli::exec(QCoreApplication &a)
 
 void Cli::updateParsingProgress()
 {
-    int value = info->Glue->FramesProcessedPerStream(indexOfStreamWithKnownFrameCount) * progress->getMax() /
-            info->Glue->FramesCountPerStream(indexOfStreamWithKnownFrameCount);
+    size_t framesProcessed = info->Glue->FramesProcessedPerStream(indexOfStreamWithKnownFrameCount);
+    size_t framesCount = info->Glue->FramesCountPerStream(indexOfStreamWithKnownFrameCount);
+
+    int value = framesProcessed * progress->getMax() / framesCount;
 
     progress->setValue(value);
 }
