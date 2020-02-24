@@ -13,11 +13,14 @@ rem * - yasm.exe in the PATH if not provided by Cygwin                          
 rem * Options:                                                                                    *
 rem * - /static           - build statically linked binary                                        *
 rem * - /target x86|x64   - target arch (default x86)                                             *
+rem * - /nogui            - build only qcli                                                       *
 rem ***********************************************************************************************
 
 rem *** Init ***
 set ARCH=x86
 set STATIC=
+set NOGUI=
+set QMAKEOPTS=
 
 set OLD_CD="%CD%"
 set OLD_PATH=%PATH%
@@ -32,6 +35,7 @@ rem *** Parse command line ***
 :cmdline
 if not "%1"=="" (
     if /I "%1"=="/static" set STATIC=1
+    if /I "%1"=="/nogui" set NOGUI=1
     if /I "%1"=="/target" (
         set ARCH=%2
         shift
@@ -45,6 +49,10 @@ if not "%ARCH%"=="x86" if not "%ARCH%"=="x64" (
     goto:clean
 )
 
+if defined STATIC (
+    set QMAKEOPTS=STATIC^=1
+)
+
 rem *** Get VC tools path ***
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
 
@@ -56,12 +64,10 @@ rem *** Build freetype ***
 cd "%BUILD_DIR%\freetype\builds\windows\vc2010"
 sed -i "s/>v100</>v141</g" freetype.vcxproj
 if defined STATIC (
-    sed -i "s/>MultiThreadedDLL</>MultiThreaded</g" freetype.vcxproj
+    MSBuild /t:Clean;Build /p:Configuration="Release Static";Platform=%PLATFORM%
 ) else (
-    sed -i "s/>MultiThreaded</>MultiThreadedDLL</g" freetype.vcxproj
+    MSBuild /t:Clean;Build /p:Configuration=Release;Platform=%PLATFORM%
 )
-
-MSBuild /t:Clean;Build /p:Configuration=Release;Platform=%PLATFORM%
 
 rem *** Build ffmpeg ***
 set FFMPEG_CMDLINE=--prefix^=. --disable-avdevice --disable-programs --enable-gpl --enable-version3 --toolchain^=msvc
@@ -69,10 +75,12 @@ set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-securetransport --disable-videotoo
 set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-doc --disable-debug
 set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-libfreetype --extra-cflags^=-I../freetype/include
 
-if "%ARCH%"=="x64" (
-    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/x64/Release/freetype.lib
-) else (
-    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/Win32/Release/freetype.lib
+if not defined STATIC (
+    if "%ARCH%"=="x64" (
+        set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/x64/Release/freetype.lib
+    ) else (
+        set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/Win32/Release/freetype.lib
+    )
 )
 
 if defined STATIC (
@@ -83,6 +91,7 @@ if defined STATIC (
 
 cd "%BUILD_DIR%\ffmpeg"
 if exist Makefile bash --login -c "make clean uninstall"
+if exist lib bash --login -c "rm -f lib/*.lib"
 bash --login -c "./configure %FFMPEG_CMDLINE%"
 bash --login -c "make install"
 
@@ -90,21 +99,24 @@ if defined STATIC forfiles /S /M *.a /C "cmd /c rename @file ///*.lib"
 
 rem *** Build qwt ***
 cd "%BUILD_DIR%\qwt"
-rem TODO: Make dynamically linked version of QWT work
-if exist Makefile nmake distclean
-
-qmake -recursive
-nmake Release
+if not defined NOGUI (
+    rem TODO: Make dynamically linked version of QWT work
+    if exist Makefile nmake distclean
+    qmake -recursive
+    nmake Release
+)
 
 rem *** Build QCTools ***
 rmdir /S /Q "%BUILD_DIR%\qctools\Project\QtCreator\build"
 mkdir "%BUILD_DIR%\qctools\Project\QtCreator\build"
 cd "%BUILD_DIR%\qctools\Project\QtCreator\build"
 
-if exist Makefile nmake distclean
-
-qmake QMAKE_CXXFLAGS+=/Zi QMAKE_LFLAGS+=/INCREMENTAL:NO QMAKE_LFLAGS+=/Debug ..
-nmake
+qmake %QMAKEOPTS% QMAKE_CXXFLAGS+=/Zi QMAKE_LFLAGS+=/INCREMENTAL:NO QMAKE_LFLAGS+=/Debug ..
+if not defined NOGUI (
+    nmake
+) else (
+    nmake sub-qctools-cli
+)
 
 if not defined STATIC (
     windeployqt qctools-gui/release/QtAV1.dll

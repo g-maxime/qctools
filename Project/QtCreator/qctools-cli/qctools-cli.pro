@@ -57,7 +57,7 @@ DEFINES += QT_DEPRECATED_WARNING
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 include(../zlib.pri)
 win32 {
-    LIBS += -lbcrypt -lwsock32 -lws2_32
+    LIBS += -lSecur32 -lbcrypt -lwsock32 -lws2_32
 }
 
 !win32 {
