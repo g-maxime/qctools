@@ -19,7 +19,7 @@ macx:contains(DEFINES, USE_BREW) {
         FFMPEG_INCLUDES=$$FFMPEG
     }
 
-    win32:exists($$FFMPEG/bin) {
+    win32:!contains(STATIC, yes|1):exists($$FFMPEG/bin) {
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/bin)
         FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/bin)
         FFMPEG_AVFORMAT=$$absolute_path($$FFMPEG/bin)
@@ -41,7 +41,6 @@ macx:contains(DEFINES, USE_BREW) {
 
         FFMPEG_LIBS += \
                      -L$$absolute_path($$FFMPEG/lib) -lavfilter -lavformat -lavcodec -lpostproc -lswresample -lswscale -lavutil
-
     } else {
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/libavcodec)
         FFMPEG_AVFILTER=$$absolute_path($$FFMPEG/libavfilter)
@@ -62,6 +61,10 @@ macx:contains(DEFINES, USE_BREW) {
     }
 
     unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
+    win32:contains(STATIC, yes|1) {
+        contains(QT_ARCH, x86_64):FFMPEG_LIBS += -L$$absolute_path("$$FFMPEG/../freetype/objs/x64/Release Static") -lfreetype
+        else:FFMPEG_LIBS += -L$$absolute_path("$$FFMPEG/../freetype/objs/Win32/Release Static") -lfreetype
+    }
 
     INCLUDEPATH += $$FFMPEG_INCLUDES
     LIBS += $$FFMPEG_LIBS
