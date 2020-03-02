@@ -18,9 +18,9 @@ mkdir -p "${FILES}_root/usr/local/bin"
 
 cp -R "../QtCreator/build/qctools-cli/${APPNAME}" "${FILES}_root/usr/local/bin"
 
-codesign -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${FILES}_root/usr/local/bin/${APPNAME}"
+codesign --deep --options=runtime -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${FILES}_root/usr/local/bin/${APPNAME}"
 pkgbuild --root "${FILES}_root" --identifier "net.mediaarea.${APPNAME}.mac" --sign "Developer ID Installer: ${SIGNATURE}" --version "$(<../version.txt)" "${FILES}/${APPNAME}.pkg"
-codesign -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${FILES}/${APPNAME}.pkg"
+codesign --deep --options=runtime -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${FILES}/${APPNAME}.pkg"
 
 cp ../../License.html "${FILES}/License.html"
 cp ../../History.txt "${FILES}/History.txt"
@@ -60,7 +60,7 @@ sleep 2
 
 # convert to compressed image, delete temp image
 hdiutil convert "$DMG" -format UDBZ -o "${APPNAME}.dmg"
-codesign -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${APPNAME}.dmg"
+codesign --deep --options=runtime -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${APPNAME}.dmg"
 
 rm -rf "${FILES}_root"
 rm -rf "${FILES}"
