@@ -20,7 +20,11 @@ fi
 
 cd freetype
 chmod u+x configure
+if sw_vers >/dev/null 2>&1 ; then
+./configure --prefix="$(pwd)/usr" --without-zlib --without-bzip2 --without-png --without-harfbuzz --enable-static --disable-shared CFLAGS=-mmacosx-version-min=10.10 LDFLAGS=-mmacosx-version-min=10.10
+else
 ./configure --prefix="$(pwd)/usr" --without-zlib --without-bzip2 --without-png --without-harfbuzz --enable-static --disable-shared
+fi
 make
 make install
 cd ..
@@ -28,7 +32,7 @@ cd ..
 cd ffmpeg
 FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-avdevice --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-ffplay --disable-ffprobe --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --extra-cflags=-I../freetype/include)
 if sw_vers >/dev/null 2>&1 ; then
-    FFMPEG_CONFIGURE_OPTS+=(--extra-cflags="-mmacosx-version-min=10.9" --extra-ldflags="-mmacosx-version-min=10.9")
+    FFMPEG_CONFIGURE_OPTS+=(--extra-cflags="-mmacosx-version-min=10.10" --extra-ldflags="-mmacosx-version-min=10.10")
 fi
 
 chmod u+x configure
