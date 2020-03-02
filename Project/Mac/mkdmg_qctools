@@ -15,26 +15,8 @@ mkdir "${FILES}"
 mkdir "${FILES}/.background"
 cp -R "../QtCreator/build/qctools-gui/${APPNAME}.app" "${FILES}/"
 
-# provisory cleaning
-#rm -f "${FILES}/${APPNAME}.app/Contents/Frameworks/QtAVWidgets.framework/QtAVWidgets.prl"
-#rm -f "${FILES}/${APPNAME}.app/Contents/Frameworks/QtAV.framework/QtAV.prl"
-
-#macdeployqt "${FILES}/${APPNAME}.app" -executable="${FILES}/${APPNAME}.app/Contents/Frameworks/QtAV.framework/Versions/Current/QtAV" -executable="${FILES}/${APPNAME}.app/Contents/Frameworks/QtAVWidgets.framework/Versions/Current/QtAVWidgets" -executable="${FILES}/${APPNAME}.app/Contents/Frameworks/libQmlAV.dylib"
-
-#for LIB in ${FILES}/${APPNAME}.app/Contents/Frameworks/* ; do
-#    if test -e "${LIB}/Resources/Info.plist" ; then
-#        plutil -replace CFBundleIdentifier -string "${BUNDLEID}" "${LIB}/Resources/Info.plist"
-#    fi
-
-#    codesign -f -s "Developer ID Application: ${SIGNATURE}" -i "${BUNDLEID}" --verbose "${LIB}"
-#done
-
-#for LIB in /Users/jerome/build/snapshots/qctools/qctools/Project/Mac/tmp-QCTools/QCTools.app/Contents/PlugIns/*/* ; do
-#    codesign -f -s "Developer ID Application: ${SIGNATURE}" -i "${BUNDLEID}" --verbose "${LIB}"
-#done
-
-codesign -f -s "Developer ID Application: ${SIGNATURE}" -i "${BUNDLEID}" --verbose "${FILES}/${APPNAME}.app/Contents/MacOS/${APPNAME}"
-codesign -f -s "Developer ID Application: ${SIGNATURE}" --verbose "${FILES}/${APPNAME}.app"
+codesign -f --deep --options=runtime -s "Developer ID Application: ${SIGNATURE}" -i "${BUNDLEID}" --verbose "${FILES}/${APPNAME}.app/Contents/MacOS/${APPNAME}"
+codesign -f --deep --options=runtime -s "Developer ID Application: ${SIGNATURE}" --verbose "${FILES}/${APPNAME}.app"
 
 cp ../../License.html "${FILES}/License.html"
 cp ../../History.txt "${FILES}/History.txt"
@@ -76,7 +58,7 @@ sleep 2
 
 # convert to compressed image, delete temp image
 hdiutil convert "$DMG" -format UDBZ -o "${APPNAME}.dmg"
-codesign -f -s "Developer ID Application: ${SIGNATURE}" -i "${BUNDLEID}" --verbose "${APPNAME}.dmg"
+codesign -f --deep --options=runtime -s "Developer ID Application: ${SIGNATURE}" -i "${BUNDLEID}" --verbose "${APPNAME}.dmg"
 
 rm -rf "${FILES}"
 rm -f "$DMG"
