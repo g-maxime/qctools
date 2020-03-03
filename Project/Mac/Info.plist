@@ -48,5 +48,7 @@
     <string>NSApplication</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false />
+    <key>NSRequiresAquaSystemAppearance</key>
+    <true />
 </dict>
 </plist>
