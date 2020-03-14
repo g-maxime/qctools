@@ -1,5 +1,5 @@
-macx:contains(DEFINES, USE_BREW) {
-    message("use ffmpeg from brew")
+macx:contains(DEFINES, USE_BREW)|unix:contains(DEFINES, USE_SYSTEM) {
+    message("use ffmpeg from brew/pkg-config")
 
     PKGCONFIG += libavcodec libavfilter libavformat libpostproc
     PKGCONFIG += libswresample libswscale libavcodec libavutil
