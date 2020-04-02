@@ -2,7 +2,7 @@ Format: 3.0 (quilt)
 Source: qctools
 Binary: qctools, qctools-dbg, qcli, qcli-dbg
 Architecture: any
-Version: 1.1-0
+Version: 1.1-1
 Maintainer: MediaArea.net SARL <info@mediaarea.net>
 Homepage: http://www.bavc.org/qctools
 Standards-Version: 3.7.3
@@ -14,4 +14,4 @@ Package-List:
  qctools-dbg deb debug optional arch=any
 Files:
  00000000000000000000000000000000 000000 qctools_1.1.orig.tar.xz
- 00000000000000000000000000000000 000000 qctools_1.1-0.debian.tar.xz
+ 00000000000000000000000000000000 000000 qctools_1.1-1.debian.tar.xz

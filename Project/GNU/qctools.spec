@@ -36,6 +36,7 @@ BuildRequires:  update-desktop-files
 %if 0%{?suse_version} >= 1200
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  pkgconfig(Qt5OpenGL)
 BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Concurrent)
@@ -55,6 +56,10 @@ BuildRequires:  desktop-file-utils
 
 %if 0%{?fedora_version} == 99
 BuildRequires: gnu-free-sans-fonts
+%endif
+
+%if 0%{?fedora_version} >= 32
+BuildRequires:  pkgconfig(xext)
 %endif
 
 %if 0%{?mageia}
