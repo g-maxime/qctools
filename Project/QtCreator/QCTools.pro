@@ -58,6 +58,9 @@ contains(DEFINES, USE_BREW) {
     write_file($$QTAV/.qmake.conf, limitMacros, append)
 }
 
+limitsDef = "DEFINES += __STDC_LIMIT_MACROS"
+write_file($$QTAV/.qmake.conf, limitsDef, append)
+
 staticLibs = "CONFIG += staticlib"
 unix:write_file($$QTAV/.qmake.conf, staticLibs, append)
 
