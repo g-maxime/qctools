@@ -4,6 +4,10 @@
 #include <QPushButton>
 #include <QWheelEvent>
 
+#include <cmath>
+
+using namespace std;
+
 PanelsView::PanelsView(QWidget *parent) : QFrame(parent), m_actualWidth(0)
 {
 }
