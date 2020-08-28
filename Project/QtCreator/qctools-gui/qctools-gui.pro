@@ -16,8 +16,6 @@ QMAKE_CXXFLAGS += -std=c++11
 include(../brew.pri)
 message("PWD = " $$PWD)
 
-QWT_STATIC = 1
-
 win32:RC_FILE = QCTools.rc
 
 # link against libqctools
@@ -313,21 +311,10 @@ macx:contains(DEFINES, USE_BREW) {
 
     include( $${QWT_ROOT}/qwtconfig.pri )
 
-    macx {
-        macx:LIBS       += -F$${QWT_ROOT}/lib -framework qwt
-    }
 
-    win32-msvc* {
-        isEmpty(QWT_STATIC) {
-            DEFINES += QWT_DLL
-        }
-    }
-
-    !macx: {
-        win32:CONFIG(release, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwt
-        else:win32:CONFIG(debug, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwtd
-        else: LIBS += -L$${QWT_ROOT}/lib -lqwt
-    }
+    win32:CONFIG(release, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwt
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwtd
+    else: LIBS += -L$${QWT_ROOT}/lib -lqwt
 
     INCLUDEPATH += $$QWT_ROOT/src
 }

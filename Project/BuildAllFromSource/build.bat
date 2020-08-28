@@ -102,6 +102,10 @@ cd "%BUILD_DIR%\qwt"
 if not defined NOGUI (
     rem TODO: Make dynamically linked version of QWT work
     if exist Makefile nmake distclean
+    set QWT_STATIC=1
+    set QWT_NO_SVG=1
+    set QWT_NO_OPENGL=1
+    set QWT_NO_DESIGNER=1
     qmake -recursive
     nmake Release
 )
