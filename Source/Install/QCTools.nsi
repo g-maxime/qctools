@@ -74,6 +74,9 @@ ShowUnInstDetails nevershow
 Function .onInit
   ${If} ${RunningX64}
     SetRegView 64
+  ${Else}
+    MessageBox MB_OK|MB_ICONSTOP 'You are trying to install the 64-bit version of ${PRODUCT_NAME} on 32-bit Windows.$\r$\nPlease download and use the 32-bit version instead.$\r$\nClick OK to quit Setup.'
+    Quit
   ${EndIf}
 FunctionEnd
 
@@ -92,7 +95,7 @@ Section "SectionPrincipale" SEC01
   File "..\..\History.txt"
   File "..\..\License.html"
   !ifndef STATIC
-    File "..\..\..\freetype\objs\Win32\Release\freetype.dll"
+    File "..\..\..\freetype\objs\x64\Release\freetype.dll"
     File "..\..\..\ffmpeg\libavcodec\avcodec-*.dll"
     File "..\..\..\ffmpeg\libavfilter\avfilter-*.dll"
     File "..\..\..\ffmpeg\libavformat\avformat-*.dll"
@@ -100,10 +103,10 @@ Section "SectionPrincipale" SEC01
     File "..\..\..\ffmpeg\libpostproc\postproc-*.dll"
     File "..\..\..\ffmpeg\libswresample\swresample-*.dll"
     File "..\..\..\ffmpeg\libswscale\swscale-*.dll"
-    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x86\Microsoft.VC141.CRT\concrt140.dll"
-    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x86\Microsoft.VC141.CRT\msvcp140.dll"
-    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x86\Microsoft.VC141.CRT\vccorlib140.dll"
-    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x86\Microsoft.VC141.CRT\vcruntime140.dll"
+    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\concrt140.dll"
+    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\msvcp140.dll"
+    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\vccorlib140.dll"
+    File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\vcruntime140.dll"
     File "..\..\Project\QtCreator\build\qctools-gui\release\QtAV1.dll"
     File "..\..\Project\QtCreator\build\qctools-gui\release\QtAVWidgets1.dll"
     File "..\..\Project\QtCreator\build\qctools-gui\release\Qt5Core.dll"
