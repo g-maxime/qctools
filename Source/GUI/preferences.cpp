@@ -55,6 +55,11 @@ void PreferencesDialog::saveFilterSelectorsOrder(const QList<std::tuple<quint64,
     preferences->saveFilterSelectorsOrder(order);
 }
 
+QString PreferencesDialog::cacheDirectoryPathString() const
+{
+    return preferences->cacheDirectoryPathString();
+}
+
 bool PreferencesDialog::isSignalServerEnabled() const
 {
     return preferences->isSignalServerEnabled();
@@ -126,6 +131,8 @@ void PreferencesDialog::Load()
     ui->Tracks_Audio_First->setChecked(!ActiveAllTracks[Type_Audio]);
     ui->Tracks_Audio_All->setChecked(ActiveAllTracks[Type_Audio]);
 
+    ui->cacheDirectoryPath_lineEdit->setText(cacheDirectoryPathString());
+
     ui->signalServerUrl_lineEdit->setText(signalServerUrlString());
     ui->signalServerLogin_lineEdit->setText(signalServerLogin());
     ui->signalServerPassword_lineEdit->setText(signalServerPassword());
@@ -145,6 +152,9 @@ void PreferencesDialog::Save()
     for (auto it = activePanelsNames.begin(); it != activePanelsNames.end(); ++it)
         A.insert(*it);
     preferences->setActivePanels(A);
+
+    preferences->setCacheDirectoryPathString(ui->cacheDirectoryPath_lineEdit->text());
+
     preferences->setSignalServerUrlString(ui->signalServerUrl_lineEdit->text());
     preferences->setSignalServerLogin(ui->signalServerLogin_lineEdit->text());
     preferences->setSignalServerPassword(ui->signalServerPassword_lineEdit->text());

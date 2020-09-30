@@ -2,6 +2,7 @@
 #include "version.h"
 #include "Core/FFmpegVideoEncoder.h"
 #include "Core/FFmpeg_Glue.h"
+#include "QDir"
 
 Cli::Cli() : indexOfStreamWithKnownFrameCount(0), statsFileBytesWritten(0), statsFileBytesTotal(0), statsFileBytesUploaded(0), statsFileBytesToUpload(0)
 {
@@ -12,6 +13,7 @@ int Cli::exec(QCoreApplication &a)
 {
     std::string appName = "qcli";
     std::string copyright = "Copyright (C): 2013-2017, BAVC.\nCopyright (C): 2018-2020, RiceCapades LLC & MediaArea.net SARL.";
+    Preferences prefs;
 
     QString input;
     QString output;
@@ -20,6 +22,8 @@ int Cli::exec(QCoreApplication &a)
     bool showLongHelp = false;
     bool showShortHelp = false;
     bool showVersion = false;
+    bool createMkv = true;
+    QString useCacheDir;
 
     bool uploadToSignalServer = false;
     bool forceUploadToSignalServer = false;
@@ -59,6 +63,26 @@ int Cli::exec(QCoreApplication &a)
         {
             showVersion = true;
         }
+        else if (a.arguments().at(i) == "-cd")
+        {
+            useCacheDir = prefs.cacheDirectoryPathString();
+            if (useCacheDir.isEmpty())
+            {
+                std::cout << "App local data location not available, use -cdp instead, analyzing aborted.. " << std::endl;
+                return InvalidInput;
+            }
+        } else if(a.arguments().at(i) == "-cdp" && (i + 1) < a.arguments().length())
+        {
+            useCacheDir = a.arguments().at(i + 1);
+        }
+        else if (a.arguments().at(i) == "-s")
+        {
+            createMkv = false;
+        }
+        else if (a.arguments().at(i) == "-a")
+        {
+            createMkv = true;
+        }
     }
 
     if(!showLongHelp)
@@ -96,7 +120,16 @@ int Cli::exec(QCoreApplication &a)
                 << "-o <output file>" << std::endl
                 << "    Specifies output file path, including extension. If no output file is" << std::endl
                 << "    declared, qctools will create an output named after the input file, suffixed" << std::endl
-                << "    with \".qctools.xml.gz\"." << std::endl
+                << "    with \".qctools.xml.gz\" (if -s used) or  \".qctools.mkv\" (if -a used)." << std::endl
+                << "-s" << std::endl
+                << "    Stats only (no thumbnails, no panels)." << std::endl
+                << "-a" << std::endl
+                << "    All (stats + thumbnails + panels)." << std::endl
+                << "    Is default." << std::endl
+                << "-cd" << std::endl
+                << "    Use a separate cache directory." << std::endl
+                << "-cdp <cache directory path>" << std::endl
+                << "    Use a separate cache directory and provide cache directory path." << std::endl
                 << "-f" << std::endl
                 << "    Specifies '+'-separated string of filters used. Example: -f signalstats+cropdetect" << std::endl
                 << "    The filters used in " << appName << " may also be declared via the qctools-gui (see the" << std::endl
@@ -153,8 +186,6 @@ int Cli::exec(QCoreApplication &a)
 
     std::cout << appName << " " << (VERSION) << std::endl;
 
-    Preferences prefs;
-
     signalServer = std::unique_ptr<SignalServer>(new SignalServer());
 
     QString urlString = prefs.signalServerUrlString();
@@ -190,10 +221,34 @@ int Cli::exec(QCoreApplication &a)
     if(input.isEmpty())
         return NoInput;
 
-    if(!input.endsWith(".qctools.xml.gz")) // skip output if input is already .qctools.xml.gz
+    if(!input.endsWith(".qctools.xml.gz") && !input.endsWith(".qctools.mkv")) // skip output if input is already .qctools.xml.gz
     {
+        if (!useCacheDir.isEmpty())
+        {
+            if (!output.isEmpty())
+            {
+                std::cout << "-cd and -o can not be used at same time, analyzing aborted." << std::endl;
+                return InvalidInput;
+            }
+
+            auto fileNameCached = prefs.createCacheDirectoryFileNameString(input, useCacheDir);
+            if (fileNameCached.isEmpty())
+            {
+                std::cout << "Problem while creating output file name, analyzing aborted." << std::endl;
+                return InvalidInput;
+            }
+
+            output = fileNameCached + (createMkv ? ".qctools.mkv" : ".qctools.xml.gz");
+            auto outPath = QFileInfo(output).dir();
+            if (!outPath.mkpath("."))
+            {
+                std::cout << "Can not create output directory, analyzing aborted." << std::endl;
+                return InvalidInput;
+            }
+        }
+
         if(output.isEmpty())
-            output = input + ".qctools.xml.gz";
+            output = input + (createMkv ? ".qctools.mkv" : ".qctools.xml.gz");
     }
 
     bool mkvReport = output.endsWith(".qctools.mkv");
@@ -274,7 +329,7 @@ int Cli::exec(QCoreApplication &a)
 
     std::cout << std::endl;
 
-    info = std::unique_ptr<FileInformation>(new FileInformation(signalServer.get(), input, filters, prefs.activeAllTracks(), prefs.getActivePanels()));
+    info = std::unique_ptr<FileInformation>(new FileInformation(signalServer.get(), input, filters, prefs.activeAllTracks(), prefs.getActivePanels(), prefs.createCacheDirectoryFileNameString(input)));
     info->setAutoCheckFileUploaded(false);
     info->setAutoUpload(false);
 
@@ -462,7 +517,7 @@ int Cli::exec(QCoreApplication &a)
 
         QObject::disconnect(info.get(), SIGNAL(statsFileGenerationProgress(quint64, quint64)), this, SLOT(onStatsFileGenerationProgress(quint64, quint64)));
 
-        std::cout << std::endl << "generating QCTools report... done" << std::endl;
+        std::cout << std::endl << "generating QCTools report... done, " << output.toStdString() << std::endl;
     }
     else
     {

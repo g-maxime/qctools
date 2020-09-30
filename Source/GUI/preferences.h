@@ -34,6 +34,8 @@ public:
     bool isSignalServerEnabled() const;
     bool isSignalServerAutoUploadEnabled() const;
 
+    QString cacheDirectoryPathString() const;
+
     QString signalServerUrlString() const;
     QString signalServerLogin() const;
     QString signalServerPassword() const;
