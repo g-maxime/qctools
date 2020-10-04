@@ -14,12 +14,14 @@ rem * Options:                                                                  
 rem * - /static           - build statically linked binary                                        *
 rem * - /target x86|x64   - target arch (default x86)                                             *
 rem * - /nogui            - build only qcli                                                       *
+rem * - /prebuild_ffmpeg  - assume that ffmpeg is already builds                                  *
 rem ***********************************************************************************************
 
 rem *** Init ***
 set ARCH=x86
 set STATIC=
 set NOGUI=
+set NO_BUILD_FFMPEG=
 set QMAKEOPTS=
 
 set OLD_CD="%CD%"
@@ -36,6 +38,7 @@ rem *** Parse command line ***
 if not "%1"=="" (
     if /I "%1"=="/static" set STATIC=1
     if /I "%1"=="/nogui" set NOGUI=1
+    if /I "%1"=="/prebuild_ffmpeg" set NO_BUILD_FFMPEG=1
     if /I "%1"=="/target" (
         set ARCH=%2
         shift
@@ -59,43 +62,37 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary
 if "%ARCH%"=="x86" set PLATFORM=Win32
 if "%ARCH%"=="x64" set PLATFORM=x64
 
-
-rem *** Build freetype ***
-cd "%BUILD_DIR%\freetype\builds\windows\vc2010"
-sed -i "s/>v100</>v141</g" freetype.vcxproj
-if defined STATIC (
+if not defined NO_BUILD_FFMPEG (
+    rem *** Build freetype ***
+    cd "%BUILD_DIR%\freetype\builds\windows\vc2010"
+    devenv /upgrade freetype.vcxproj
     MSBuild /t:Clean;Build /p:Configuration="Release Static";Platform=%PLATFORM%
-) else (
-    MSBuild /t:Clean;Build /p:Configuration=Release;Platform=%PLATFORM%
-)
 
-rem *** Build ffmpeg ***
-set FFMPEG_CMDLINE=--prefix^=. --disable-avdevice --disable-programs --enable-gpl --enable-version3 --toolchain^=msvc
-set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-securetransport --disable-videotoolbox  --disable-ffplay --disable-ffprobe
-set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-doc --disable-debug
-set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-libfreetype --extra-cflags^=-I../freetype/include
+    cd "%BUILD_DIR%\freetype"
+    move /Y "objs\%PLATFORM%\Release Static" "objs\%PLATFORM%\ReleaseStatic"
 
-if not defined STATIC (
-    if "%ARCH%"=="x64" (
-        set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/x64/Release/freetype.lib
+    rem *** Build ffmpeg ***
+    set FFMPEG_CMDLINE=--prefix^=. --disable-programs --enable-gpl --enable-version3 --toolchain^=msvc
+    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-securetransport --disable-videotoolbox
+    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-doc --disable-debug
+    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-libfreetype --extra-cflags^=-I../freetype/include
+
+    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/%PLATFORM%/ReleaseStatic/freetype.lib
+
+    if defined STATIC (
+        set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-static --disable-shared
     ) else (
-        set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/Win32/Release/freetype.lib
+        set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-shared --disable-static
     )
+
+    cd "%BUILD_DIR%\ffmpeg"
+    if exist Makefile bash --login -c "make clean uninstall"
+    if exist lib bash --login -c "rm -f lib/*.lib"
+    bash --login -c "./configure %FFMPEG_CMDLINE%"
+    bash --login -c "make install"
+
+    if defined STATIC forfiles /S /M *.a /C "cmd /c rename @file ///*.lib"
 )
-
-if defined STATIC (
-    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-static --disable-shared
-) else (
-    set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-shared --disable-static
-)
-
-cd "%BUILD_DIR%\ffmpeg"
-if exist Makefile bash --login -c "make clean uninstall"
-if exist lib bash --login -c "rm -f lib/*.lib"
-bash --login -c "./configure %FFMPEG_CMDLINE%"
-bash --login -c "make install"
-
-if defined STATIC forfiles /S /M *.a /C "cmd /c rename @file ///*.lib"
 
 rem *** Build qwt ***
 cd "%BUILD_DIR%\qwt"

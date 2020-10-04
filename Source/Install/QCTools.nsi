@@ -95,14 +95,14 @@ Section "SectionPrincipale" SEC01
   File "..\..\History.txt"
   File "..\..\License.html"
   !ifndef STATIC
-    File "..\..\..\freetype\objs\x64\Release\freetype.dll"
-    File "..\..\..\ffmpeg\libavcodec\avcodec-*.dll"
-    File "..\..\..\ffmpeg\libavfilter\avfilter-*.dll"
-    File "..\..\..\ffmpeg\libavformat\avformat-*.dll"
-    File "..\..\..\ffmpeg\libavutil\avutil-*.dll"
-    File "..\..\..\ffmpeg\libpostproc\postproc-*.dll"
-    File "..\..\..\ffmpeg\libswresample\swresample-*.dll"
-    File "..\..\..\ffmpeg\libswscale\swscale-*.dll"
+    File "..\..\..\ffmpeg\bin\avdevice-*.dll"
+    File "..\..\..\ffmpeg\bin\avcodec-*.dll"
+    File "..\..\..\ffmpeg\bin\avfilter-*.dll"
+    File "..\..\..\ffmpeg\bin\avformat-*.dll"
+    File "..\..\..\ffmpeg\bin\avutil-*.dll"
+    File "..\..\..\ffmpeg\bin\postproc-*.dll"
+    File "..\..\..\ffmpeg\bin\swresample-*.dll"
+    File "..\..\..\ffmpeg\bin\swscale-*.dll"
     File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\concrt140.dll"
     File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\msvcp140.dll"
     File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64\Microsoft.VC141.CRT\vccorlib140.dll"
@@ -127,6 +127,9 @@ Section "SectionPrincipale" SEC01
   !endif
   # Create files
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
+
+  # Delete files that might be present from older installation
+  Delete "$INSTDIR\freetype.dll"
 SectionEnd
 
 Section -Post
@@ -157,7 +160,7 @@ Section Uninstall
   Delete "$INSTDIR\History.txt"
   Delete "$INSTDIR\License.html"
   !ifndef STATIC
-    Delete "$INSTDIR\freetype.dll"
+    Delete "$INSTDIR\avdevice-*.dll"
     Delete "$INSTDIR\avcodec-*.dll"
     Delete "$INSTDIR\avfilter-*.dll"
     Delete "$INSTDIR\avformat-*.dll"

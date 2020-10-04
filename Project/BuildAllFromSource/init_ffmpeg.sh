@@ -30,7 +30,7 @@ make install
 cd ..
 
 cd ffmpeg
-FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-avdevice --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-ffplay --disable-ffprobe --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --extra-cflags=-I../freetype/include)
+FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --extra-cflags=-I../freetype/include)
 if sw_vers >/dev/null 2>&1 ; then
     FFMPEG_CONFIGURE_OPTS+=(--extra-cflags="-mmacosx-version-min=10.10" --extra-ldflags="-mmacosx-version-min=10.10")
 fi
