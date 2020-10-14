@@ -40,17 +40,20 @@ BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Concurrent)
 BuildRequires:  pkgconfig(Qt5PrintSupport)
+BuildRequires:  libXv-devel
 %endif
 
 %if 0%{?rhel} > 6
 BuildRequires:  qt5-qtbase-devel
 BuildRequires:  qt5-qtdeclarative-devel
+BuildRequires:  libXv-devel
 %endif
 
 %if 0%{?fedora_version}
 BuildRequires:  pkgconfig(Qt5)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  desktop-file-utils
+BuildRequires:  libXv-devel
 %endif
 
 %if 0%{?fedora_version} == 99

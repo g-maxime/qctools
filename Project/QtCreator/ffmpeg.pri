@@ -65,6 +65,7 @@ macx:contains(DEFINES, USE_BREW)|unix:contains(DEFINES, USE_SYSTEM) {
     }
 
     unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
+    unix:!mac:FFMPEG_LIBS += -lxcb -lxcb-shm -lxcb-xfixes -lxcb-render -lxcb-shape
     win32:contains(STATIC, yes|1) {
         contains(QT_ARCH, x86_64):FFMPEG_LIBS += -L$$absolute_path("$$FFMPEG/../freetype/objs/x64/ReleaseStatic") -lfreetype
         else:FFMPEG_LIBS += -L$$absolute_path("$$FFMPEG/../freetype/objs/Win32/ReleaseStatic") -lfreetype
