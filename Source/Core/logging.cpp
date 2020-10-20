@@ -97,7 +97,7 @@ void Logging::enable()
         auto logFiles = QDir(absolutePathToLogs).entryInfoList(QStringList() << logFileName << QString("%1.*").arg(logFileName));
         for (auto logFile : logFiles) {
             auto removed = QFile(logFile.absoluteFilePath()).remove();
-            qDebug() << "existing log" << logFile << (removed ? "has been" : "has not been") << "removed";
+            qDebug() << "existing log" << logFile.absoluteFilePath() << (removed ? "has been" : "has not been") << "removed";
         }
 
         auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(QString("%1/%2")
