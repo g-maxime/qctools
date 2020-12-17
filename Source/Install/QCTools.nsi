@@ -6,7 +6,7 @@ RequestExecutionLevel admin
 !define PRODUCT_NAME "QCTools"
 !define PRODUCT_PUBLISHER "MediaArea.net"
 !define PRODUCT_VERSION "1.1.0"
-!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0"
+!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0.0"
 !define PRODUCT_WEB_SITE "http://www.bavc.org/qctools"
 !define COMPANY_REGISTRY "Software\MediaArea.net"
 !define PRODUCT_REGISTRY "Software\MediaArea.net\QCTools"
