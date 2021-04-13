@@ -4,7 +4,7 @@ rem ****************************************************************************
 rem * build.bat - Batch script for building Windows version of QCTools                            *
 rem *                                                                                             *
 rem *Script requirements:                                                                         *
-rem * - Microsoft Visual Studio 2017 at the default place                                         *
+rem * - Microsoft Visual Studio 2019 at the default place                                         *
 rem * - qctools_AllInclusive source tree                                                          *
 rem * - Qt bin directory corresponding to the requested build type (static or shared, x86 or x64) *
 rem *   in the PATH                                                                               *
@@ -57,7 +57,7 @@ if defined STATIC (
 )
 
 rem *** Get VC tools path ***
-call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
 
 if "%ARCH%"=="x86" set PLATFORM=Win32
 if "%ARCH%"=="x64" set PLATFORM=x64
