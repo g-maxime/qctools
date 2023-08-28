@@ -112,7 +112,7 @@ Section "SectionPrincipale" SEC01
     File "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.28.29910\X64\Microsoft.VC142.CRT\vccorlib140.dll"
     File "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.28.29910\X64\Microsoft.VC142.CRT\vcruntime140.dll"
     File "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.28.29910\X64\Microsoft.VC142.CRT\vcruntime140_1.dll"
-    File "..\..\Project\QtCreator\build\qctools-gui\release\QtAVPlayer.dll"
+    ;File "..\..\Project\QtCreator\build\qctools-gui\release\QtAVPlayer.dll"
     File "..\..\Project\QtCreator\build\qctools-gui\release\Qt5Core.dll"
     File "..\..\Project\QtCreator\build\qctools-gui\release\Qt5Gui.dll"
     File "..\..\Project\QtCreator\build\qctools-gui\release\Qt5Network.dll"
