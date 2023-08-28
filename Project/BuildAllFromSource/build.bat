@@ -112,7 +112,7 @@ rmdir /S /Q "%BUILD_DIR%\qctools\Project\QtCreator\build"
 mkdir "%BUILD_DIR%\qctools\Project\QtCreator\build"
 cd "%BUILD_DIR%\qctools\Project\QtCreator\build"
 
-qmake %QMAKEOPTS% QMAKE_CXXFLAGS+=/Zi QMAKE_LFLAGS+=/INCREMENTAL:NO QMAKE_LFLAGS+=/Debug ..
+qmake %QMAKEOPTS% DEFINES+=QT_AVPLAYER_MULTIMEDIA QMAKE_CXXFLAGS+=/Zi QMAKE_LFLAGS+=/INCREMENTAL:NO QMAKE_LFLAGS+=/Debug ..
 if not defined NOGUI (
     nmake
 ) else (
