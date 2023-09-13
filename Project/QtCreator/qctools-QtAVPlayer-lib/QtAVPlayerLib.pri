@@ -70,6 +70,9 @@ message('FFMPEG: ' $$FFMPEG)
                      -L$$FFMPEG_AVUTIL -lavutil
     }
 
+    unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
+    unix:!mac:FFMPEG_LIBS += -lxcb -lxcb-shm -lxcb-xfixes -lxcb-render -lxcb-shape
+    
     ffmpegIncludes = "INCLUDEPATH+=$$FFMPEG_INCLUDES"
     ffmpegLibs = "LIBS+=$$FFMPEG_LIBS"
     ffmpegExtraIncludes = "EXTRA_INCLUDEPATH+=$$FFMPEG_INCLUDES"
