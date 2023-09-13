@@ -205,13 +205,14 @@ for(resource, DRESOURCES) {
 INCLUDEPATH += $$SOURCES_PATH
 INCLUDEPATH += $$SOURCES_PATH/ThirdParty/cqmarkdown
 include(../qwt.pri)
-include(../ffmpeg.pri)
 
 CONFIG -= no_keywords
 
 DEFINES += QT_AVPLAYER_MULTIMEDIA
 INCLUDEPATH += ../qctools-QtAVPlayer/src
 include(../qctools-QtAVPlayer/src/QtAVPlayer/QtAVPlayer.pri)
+
+include(../ffmpeg.pri)
 
 greaterThan(QT_MAJOR_VERSION, 5) {
     win32-msvc* {

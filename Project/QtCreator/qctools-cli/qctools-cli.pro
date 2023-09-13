@@ -84,10 +84,10 @@ macx:LIBS += -liconv \
 HEADERS += \
     version.h
 
-message('qctools-lib: including ffmpeg')
-include(../ffmpeg.pri)
-
 INCLUDEPATH += ../qctools-QtAVPlayer/src
 include(../qctools-QtAVPlayer/src/QtAVPlayer/QtAVPlayer.pri)
+
+message('qctools-lib: including ffmpeg')
+include(../ffmpeg.pri)
 
 message('leaving qctools-cli.pro')
