@@ -71,6 +71,7 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
                      -L$$FFMPEG_AVUTIL -lavutil
     }
 
+    unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../harfbuzz/usr/lib) -lharfbuzz
     unix:FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
     unix:!mac:FFMPEG_LIBS += -lxcb -lxcb-shm -lxcb-xfixes -lxcb-render -lxcb-shape
     win32:contains(STATIC, yes|1) {
