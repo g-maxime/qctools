@@ -2,10 +2,9 @@ QT = core network multimedia concurrent
 
 TARGET = qctools
 TEMPLATE = lib
-CONFIG += c++11
+CONFIG += c++17
 CONFIG += staticlib
 
-QMAKE_CXXFLAGS += -std=c++11
 
 include(../brew.pri)
 

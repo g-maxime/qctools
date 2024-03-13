@@ -50,7 +50,10 @@ cd ..
 cd ..
 
 cd ffmpeg
-FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-autodetect --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --enable-libharfbuzz)
+FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-autodetect --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --enable-libharfbuzz --extra-cflags="-I../freetype/usr/include/freetype2" --extra-cflags="-I../harfbuzz/usr/include/harfbuzz" --extra-libs="../freetype/usr/lib/libfreetype.a" --extra-libs="../harfbuzz/usr/lib/libharfbuzz.a")
+if sw_vers >/dev/null 2>&1 ; then
+    FFMPEG_CONFIGURE_OPTS+=(--extra-cflags="-mmacosx-version-min=10.12" --extra-ldflags="-mmacosx-version-min=10.12")
+fi
 
 chmod u+x configure
 chmod u+x version.sh
@@ -69,11 +72,7 @@ if yasm --version >/dev/null 2>&1 ; then
         cd "${INSTALL_DIR}/ffmpeg"
         FFMPEG_CONFIGURE_OPTS+=(--x86asmexe=../yasm/usr/bin/yasm)
         echo "FFMPEG_CONFIGURE_OPTS = ${FFMPEG_CONFIGURE_OPTS[@]}"
-        if sw_vers >/dev/null 2>&1 ; then
-            ./configure "${FFMPEG_CONFIGURE_OPTS[@]}" --extra-cflags="-mmacosx-version-min=10.12 -I../freetype/usr/include/freetype2 -I../harfbuzz/usr/include/harfbuzz"  --extra-ldflags="-mmacosx-version-min=10.12" --extra-libs="../freetype/usr/lib/libfreetype.a ../harfbuzz/usr/lib/libharfbuzz.a"
-        else
-            ./configure "${FFMPEG_CONFIGURE_OPTS[@]}" --extra-cflags="-I../freetype/usr/include/freetype2 -I../harfbuzz/usr/include/harfbuzz" --extra-libs="../freetype/usr/lib/libfreetype.a ../harfbuzz/usr/lib/libharfbuzz.a"
-        fi
+        ./configure "${FFMPEG_CONFIGURE_OPTS[@]}"
     fi
 else
     cd "$INSTALL_DIR"

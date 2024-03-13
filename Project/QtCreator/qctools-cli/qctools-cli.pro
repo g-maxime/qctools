@@ -3,8 +3,7 @@ message('entering qctools-cli.pro')
 QT += core network
 QT -= gui
 
-CONFIG += c++11
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++17
 
 TARGET = qcli
 CONFIG += console
