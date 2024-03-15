@@ -7,7 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport qml
 TARGET = QCTools
 TEMPLATE = app
 
-CONFIG += c++1z qt
+CONFIG += c++17 qt
 
 message("PWD = " $$PWD)
 
