@@ -25,19 +25,9 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
     }
     include( $${QWT_ROOT}/qwtfunctions.pri )
 
-    macx {
-        macx:LIBS       += -F$${QWT_ROOT}/lib -framework qwt
-    }
-
-    win32-msvc* {
-        DEFINES += QWT_DLL
-    }
-
-    !macx: {
-        win32:CONFIG(release, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwt
-        else:win32:CONFIG(debug, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwtd
-        else: LIBS += -L$${QWT_ROOT}/lib -lqwt
-    }
+    win32:CONFIG(release, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwt
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$${QWT_ROOT}/lib -lqwtd
+    else: LIBS += -L$${QWT_ROOT}/lib -lqwt
 
     INCLUDEPATH += $$QWT_ROOT/src
 
