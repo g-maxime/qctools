@@ -26,6 +26,13 @@ contains(DEFINES, USE_BREW) {
     message('linkPkgConfig: ' $$linkPkgConfig)
 }
 
+unix: {
+    linkStatic = "CONFIG += static staticlib"
+    message('linkStatic: ' $$linkStatic)
+
+    write_file($$QTAVPLAYER/.qmake.conf, linkStatic, append)
+}
+
 SUBDIRS = \
         qctools-lib \
         qctools-cli \
