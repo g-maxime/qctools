@@ -2,12 +2,6 @@ TEMPLATE = subdirs
 message('entering QCTools.pro')
 message('QCTools.pro INCLUDEPATH: ' $$INCLUDEPATH)
 
-USE_BREW = $$(USE_BREW)
-!isEmpty(USE_BREW):equals(USE_BREW, true) {
-    message("DEFINES += USE_BREW")
-    DEFINES += USE_BREW
-}
-
 include(ffmpeg.pri)
 
 contains(DEFINES, USE_BREW) {
@@ -18,6 +12,13 @@ contains(DEFINES, USE_BREW) {
 
     message('pkgConfig: ' $$pkgConfig)
     message('linkPkgConfig: ' $$linkPkgConfig)
+}
+
+unix: {
+    linkStatic = "CONFIG += static staticlib"
+    message('linkStatic: ' $$linkStatic)
+
+    write_file($$QTAVPLAYER/.qmake.conf, linkStatic, append)
 }
 
 SUBDIRS = \
