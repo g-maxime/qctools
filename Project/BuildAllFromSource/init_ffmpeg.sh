@@ -28,9 +28,9 @@ fi
 cd freetype
 chmod u+x configure
 if sw_vers >/dev/null 2>&1 ; then
-./configure --prefix="$(pwd)/usr" --without-harfbuzz --without-zlib --without-bzip2 --without-png --enable-static --disable-shared CFLAGS=-mmacosx-version-min=10.12 LDFLAGS=-mmacosx-version-min=10.12
+./configure --prefix="$(pwd)/usr" --without-harfbuzz --without-zlib --without-bzip2 --without-png --without-brotli --without-librsvg --enable-static --disable-shared CFLAGS=-mmacosx-version-min=10.12 LDFLAGS=-mmacosx-version-min=10.12
 else
-./configure --prefix="$(pwd)/usr" --without-harfbuzz --without-zlib --without-bzip2 --without-png --enable-static --disable-shared
+./configure --prefix="$(pwd)/usr" --without-harfbuzz --without-zlib --without-bzip2 --without-png --without-brotli --without-librsvg --enable-static --disable-shared
 fi
 make
 make install
