@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 rem ***********************************************************************************************
 rem * build.bat - Batch script for building Windows version of QCTools                            *
@@ -24,9 +24,9 @@ set NOGUI=
 set NO_BUILD_FFMPEG=
 set QMAKEOPTS=
 
-set OLD_CD="%CD%"
+set OLD_CD=%CD%
 set OLD_PATH=%PATH%
-set BUILD_DIR="%~dp0..\..\.."
+set BUILD_DIR=%~dp0..\..\..
 
 set CHERE_INVOKING=1
 
@@ -65,10 +65,8 @@ if "%ARCH%"=="x64" set PLATFORM=x64
 set FFMPEG_CMDLINE=--prefix^=. --disable-programs --enable-gpl --enable-version3 --toolchain^=msvc
 set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-securetransport --disable-videotoolbox
 set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --disable-doc --disable-debug
-set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-libfreetype --extra-cflags^=-I../freetype/include
-
-set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --extra-libs^=../freetype/objs/%PLATFORM%/ReleaseStatic/freetype.lib
-
+set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-libfreetype --extra-cflags^=-I../freetype/usr/include/freetype2
+set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-libharfbuzz --extra-cflags^=-I../harfbuzz/usr/include/harfbuzz
 if defined STATIC (
     set FFMPEG_CMDLINE=%FFMPEG_CMDLINE% --enable-static --disable-shared
 ) else (
@@ -77,18 +75,31 @@ if defined STATIC (
 
 if not defined NO_BUILD_FFMPEG (
     rem *** Build freetype ***
-    cd "%BUILD_DIR%\freetype\builds\windows\vc2010"
-    devenv /upgrade freetype.vcxproj
-    MSBuild /t:Clean;Build /p:Configuration="Release Static";Platform=%PLATFORM%
-
     cd "%BUILD_DIR%\freetype"
-    move /Y "objs\%PLATFORM%\Release Static" "objs\%PLATFORM%\ReleaseStatic"
+    mkdir build
+    pushd build
+        meson setup --prefix %BUILD_DIR%\freetype\usr --default-library=static -Db_vscrt=md -Dbrotli=disabled -Dbzip2=disabled -Dharfbuzz=disabled -Dpng=disabled -Dzlib=internal ..
+        ninja install
+    popd
+
+    rem *** Build harfbuzz ***
+    cd "%BUILD_DIR%\harfbuzz"
+    mkdir build
+    pushd build
+        set PKG_CONFIG_PATH=%BUILD_DIR%\freetype\usr\lib\pkgconfig
+        meson setup --prefix %BUILD_DIR%\harfbuzz\usr --default-library=static -Db_vscrt=md -Dglib=disabled -Dgobject=disabled -Dcairo=disabled -Dchafa=disabled -Dicu=disabled -Dgraphite=disabled -Dgraphite2=disabled -Dgdi=disabled -Ddirectwrite=disabled -Dcoretext=disabled -Dwasm=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Ddoc_tests=false -Dutilities=disabled ..
+        ninja install
+    popd
 
     rem *** Build ffmpeg ***
     cd "%BUILD_DIR%\ffmpeg"
+    rename ..\harfbuzz\usr\lib\libharfbuzz.a harfbuzz.lib
+    rename ..\freetype\usr\lib\libfreetype.a freetype.lib
     if exist Makefile bash --login -c "make clean uninstall"
     if exist lib bash --login -c "rm -f lib/*.lib"
-    bash --login -c "./configure %FFMPEG_CMDLINE%"
+    bash --login -c "sed -i 's/^enabled libfreetype.*//g' configure"
+    bash --login -c "sed -i 's/^enabled libharfbuzz.*//g' configure"
+    bash --login -c "./configure %FFMPEG_CMDLINE% --extra-libs='../freetype/usr/lib/freetype.lib ../harfbuzz/usr/lib/harfbuzz.lib'"
     bash --login -c "make install"
 
     if defined STATIC forfiles /S /M *.a /C "cmd /c rename @file ///*.lib"
