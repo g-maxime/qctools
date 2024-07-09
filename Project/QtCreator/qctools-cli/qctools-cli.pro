@@ -55,9 +55,6 @@ DEFINES += QT_DEPRECATED_WARNING
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 include(../zlib.pri)
-win32 {
-    LIBS += -lUser32 -lOle32 -lSecur32 -lbcrypt -lwsock32 -lws2_32 -lmfplat -lmfuuid -lstrmiids
-}
 
 !win32 {
     LIBS      += -lbz2

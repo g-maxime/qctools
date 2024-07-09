@@ -131,9 +131,7 @@ if not defined NOGUI (
 )
 
 if not defined STATIC (
-    windeployqt qctools-gui/release/QtAVPlayer.dll
     windeployqt qctools-gui/release/QCTools.exe
-
     windeployqt qctools-cli/release/qcli.exe
 )
 

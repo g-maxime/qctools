@@ -225,7 +225,7 @@ greaterThan(QT_MAJOR_VERSION, 5) {
 }
 
 macx {
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.0
     QMAKE_INFO_PLIST = ../../Mac/Info.plist
 }
 
