@@ -50,6 +50,10 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
 
         FFMPEG_LIBS += \
                      -L$$absolute_path($$FFMPEG/lib) -lavdevice -lavfilter -lavformat -lavcodec -lpostproc -lswresample -lswscale -lavutil
+
+        win32 {
+            FFMPEG_LIBS += -lUser32 -lOle32 -lSecur32 -lbcrypt -lwsock32 -lws2_32 -lVfw32 -lmfplat -lmfuuid -lstrmiids
+        }
     } else {
         FFMPEG_AVDEVICE=$$absolute_path($$FFMPEG/libavdevice)
         FFMPEG_AVCODEC=$$absolute_path($$FFMPEG/libavcodec)
