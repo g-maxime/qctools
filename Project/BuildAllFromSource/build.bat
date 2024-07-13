@@ -18,7 +18,7 @@ rem * - /prebuild_ffmpeg  - assume that ffmpeg is already builds                
 rem ***********************************************************************************************
 
 rem *** Init ***
-set ARCH=x86
+set ARCH=x64
 set STATIC=
 set NOGUI=
 set NO_BUILD_FFMPEG=
@@ -78,7 +78,7 @@ if not defined NO_BUILD_FFMPEG (
     cd "%BUILD_DIR%\freetype"
     mkdir build
     pushd build
-        meson setup --prefix %BUILD_DIR%\freetype\usr --default-library=static -Db_vscrt=md -Dbrotli=disabled -Dbzip2=disabled -Dharfbuzz=disabled -Dpng=disabled -Dzlib=internal ..
+        meson setup --prefix %BUILD_DIR%\freetype\usr -Dbrotli=disabled -Dbzip2=disabled -Dharfbuzz=disabled -Dpng=disabled -Dzlib=internal ..
         ninja install
     popd
 
@@ -87,7 +87,7 @@ if not defined NO_BUILD_FFMPEG (
     mkdir build
     pushd build
         set PKG_CONFIG_PATH=%BUILD_DIR%\freetype\usr\lib\pkgconfig
-        meson setup --prefix %BUILD_DIR%\harfbuzz\usr --default-library=static -Db_vscrt=md -Dglib=disabled -Dgobject=disabled -Dcairo=disabled -Dchafa=disabled -Dicu=disabled -Dgraphite=disabled -Dgraphite2=disabled -Dgdi=disabled -Ddirectwrite=disabled -Dcoretext=disabled -Dwasm=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Ddoc_tests=false -Dutilities=disabled ..
+        meson setup --prefix %BUILD_DIR%\harfbuzz\usr -Dglib=disabled -Dgobject=disabled -Dcairo=disabled -Dchafa=disabled -Dicu=disabled -Dgraphite=disabled -Dgraphite2=disabled -Dgdi=disabled -Ddirectwrite=disabled -Dcoretext=disabled -Dwasm=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Ddoc_tests=false -Dutilities=disabled ..
         ninja install
     popd
 
