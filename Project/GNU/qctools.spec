@@ -36,26 +36,24 @@ BuildRequires:  alternatives
 %endif
 
 %if 0%{?suse_version} >= 1200
-BuildRequires:  pkgconfig(Qt5Qml)
-BuildRequires:  pkgconfig(Qt5Svg)
-BuildRequires:  pkgconfig(Qt5Core)
-BuildRequires:  pkgconfig(Qt5Widgets)
-BuildRequires:  pkgconfig(Qt5Network)
-BuildRequires:  pkgconfig(Qt5Concurrent)
-BuildRequires:  pkgconfig(Qt5PrintSupport)
-BuildRequires:  pkgconfig(Qt5QuickControls2)
-BuildRequires:  pkgconfig(Qt5XmlPatterns)
-BuildRequires:  pkgconfig(Qt5Multimedia)
+BuildRequires:  pkgconfig(Qt6Qml)
+BuildRequires:  pkgconfig(Qt6Svg)
+BuildRequires:  pkgconfig(Qt6Core)
+BuildRequires:  pkgconfig(Qt6Widgets)
+BuildRequires:  pkgconfig(Qt6Network)
+BuildRequires:  pkgconfig(Qt6Concurrent)
+BuildRequires:  pkgconfig(Qt6PrintSupport)
+BuildRequires:  pkgconfig(Qt6QuickControls2)
+BuildRequires:  pkgconfig(Qt6Multimedia)
 BuildRequires:  libXv-devel
 %endif
 
 %if 0%{?fedora_version} ||  0%{?rhel} > 7
-BuildRequires:  pkgconfig(Qt5)
-BuildRequires:  pkgconfig(Qt5Qml)
-BuildRequires:  pkgconfig(Qt5QuickControls2)
-BuildRequires:  pkgconfig(Qt5Svg)
-BuildRequires:  pkgconfig(Qt5XmlPatterns)
-BuildRequires:  pkgconfig(Qt5Multimedia)
+BuildRequires:  pkgconfig(Qt6)
+BuildRequires:  pkgconfig(Qt6Qml)
+BuildRequires:  pkgconfig(Qt6QuickControls2)
+BuildRequires:  pkgconfig(Qt6Svg)
+BuildRequires:  pkgconfig(Qt6Multimedia)
 BuildRequires:  desktop-file-utils
 BuildRequires:  libXv-devel
 %endif
@@ -63,30 +61,26 @@ BuildRequires:  libXv-devel
 %if 0%{?mageia}
 %ifarch x86_64
 BuildRequires:  lib64bzip2-devel
-BuildRequires:  lib64qt5qml-devel
-BuildRequires:  lib64qt5base5-devel
-BuildRequires:  lib64qt5quicktemplates2-devel
-BuildRequires:  lib64qt5quicktemplates2_5
-BuildRequires:  lib64qt5quickcontrols2-devel
-BuildRequires:  lib64qt5quickcontrols2_5
-BuildRequires:  lib64qt5quickwidgets-devel
-BuildRequires:  lib64qt5multimedia-devel
-BuildRequires:  lib64qt5svg-devel
-BuildRequires:  lib64qt5xmlpatterns-devel
-BuildRequires:  lib64qt5xmlpatterns5
+BuildRequires:  lib64qt6qml-devel
+BuildRequires:  lib64qt6base6-devel
+BuildRequires:  lib64qt6quicktemplates2-devel
+BuildRequires:  lib64qt6quicktemplates2_5
+BuildRequires:  lib64qt6quickcontrols2-devel
+BuildRequires:  lib64qt6quickcontrols2_5
+BuildRequires:  lib64qt6quickwidgets-devel
+BuildRequires:  lib64qt6multimedia-devel
+BuildRequires:  lib64qt6svg-devel
 %else
 BuildRequires:  libbzip2-devel
-BuildRequires:  libqt5qml-devel
-BuildRequires:  libqt5base5-devel
-BuildRequires:  libqt5quicktemplates2-devel
-BuildRequires:  libqt5quicktemplates2_5
-BuildRequires:  libqt5quickcontrols2-devel
-BuildRequires:  libqt5quickcontrols2_5
-BuildRequires:  libqt5quickwidgets-devel
-BuildRequires:  libqt5multimedia-devel
-BuildRequires:  libqt5svg-devel
-BuildRequires:  libqt5xmlpatterns-devel
-BuildRequires:  libqt5xmlpatterns5
+BuildRequires:  libqt6qml-devel
+BuildRequires:  libqt6base6-devel
+BuildRequires:  libqt6quicktemplates2-devel
+BuildRequires:  libqt6quicktemplates26
+BuildRequires:  libqt6quickcontrols2-devel
+BuildRequires:  libqt6quickcontrols26
+BuildRequires:  libqt6quickwidgets-devel
+BuildRequires:  libqt6multimedia-devel
+BuildRequires:  libqt6svg-devel
 %endif
 %if 0%{?mageia} > 5
 BuildRequires:  libproxy-pacrunner
