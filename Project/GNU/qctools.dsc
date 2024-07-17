@@ -6,7 +6,7 @@ Version: 1.4-1
 Maintainer: MediaArea.net SARL <info@mediaarea.net>
 Homepage: http://www.bavc.org/qctools
 Standards-Version: 3.7.3
-Build-Depends: debhelper (>= 9), qt6-base-dev, qt6-declarative-dev, qt6-svg-dev, qt6-multimedia-dev, qtchooser, libegl1-mesa-dev, libxv-dev, libxcb-shm0-dev, libxcb-render0-dev, libxcb-xfixes0-dev, libxcb-shape0-dev, zlib1g-dev, libbz2-dev, pkg-config, yasm
+Build-Depends: debhelper (>= 9), qt6-base-dev, qt6-declarative-dev, qt6-svg-dev, qt6-multimedia-dev, qtchooser, libfreetype-dev, libharfbuzz-dev, libegl1-mesa-dev, libxv-dev, libxcb-shm0-dev, libxcb-render0-dev, libxcb-xfixes0-dev, libxcb-shape0-dev, zlib1g-dev, libbz2-dev, pkg-config, libavcodec59, libavformat59, yasm
 Package-List:
  qcli deb utils optional arch=any
  qcli-dbg deb debug optional arch=any

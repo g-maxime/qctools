@@ -1,7 +1,7 @@
 Source: qctools
 Priority: optional
 Maintainer: MediaArea.net SARL <info@mediaarea.net>
-Build-Depends: debhelper (>= 9), qt6-base-dev, qt6-declarative-dev, qt6-svg-dev, qt6-multimedia-dev, qtchooser, libegl1-mesa-dev, libxv-dev, libxcb-shm0-dev, libxcb-render0-dev, libxcb-xfixes0-dev, libxcb-shape0-dev, zlib1g-dev, libbz2-dev, pkg-config, yasm
+Build-Depends: debhelper (>= 9), qt6-base-dev, qt6-declarative-dev, qt6-svg-dev, qt6-multimedia-dev, qtchooser, libfreetype-dev, libharfbuzz-dev, libegl1-mesa-dev, libxv-dev, libxcb-shm0-dev, libxcb-render0-dev, libxcb-xfixes0-dev, libxcb-shape0-dev, zlib1g-dev, libbz2-dev, libavcodec59, libavformat59, pkg-config, yasm
 Standards-Version: 3.7.3
 Section: utils
 Homepage: http://www.bavc.org/qctools
