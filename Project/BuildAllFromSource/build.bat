@@ -57,7 +57,7 @@ if defined STATIC (
 )
 
 rem *** Get VC tools path ***
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
 
 if "%ARCH%"=="x86" set PLATFORM=Win32
 if "%ARCH%"=="x64" set PLATFORM=x64
