@@ -23,7 +23,6 @@
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
 #include <cmath>
-#include <clocale>
 #include <unordered_set>
 #include <QMouseEvent>
 #include <QInputDialog>
@@ -130,7 +129,6 @@ Plots::Plots( QWidget *parent, FileInformation* fileInformation ) :
     m_dataTypeIndex( Plots::AxisSeconds ),
     m_commentsPlot(nullptr)
 {
-    setlocale(LC_NUMERIC, "C");
     QGridLayout* layout = new QGridLayout( this );
     layout->setSpacing( 1 );
     layout->setContentsMargins( 0, 0, 0, 0 );
