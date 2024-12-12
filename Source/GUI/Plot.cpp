@@ -27,6 +27,7 @@
 #include <qwt_clipper.h>
 
 #include "Core/FileInformation.h"
+#include <optional>
 #include <cassert>
 
 static double stepSize( double distance, int numSteps )
