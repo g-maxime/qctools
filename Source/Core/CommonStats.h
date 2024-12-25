@@ -17,6 +17,7 @@
 #include <cctype>
 #include <functional>
 #include <Core/Core.h>
+#include <QMutex>
 #include <QtAVPlayer/qavplayer.h>
 
 struct AVFrame;
@@ -53,6 +54,7 @@ public:
     double*                     y_Max;                      // Maximum y by plot
     double                      FirstTimeStamp;             // Time stamp of the first frame
     char**                      comments;                   // Comments per frame (utf-8)
+    int                         streamIndex;                // Stream index in the container
 
     // Status
     int                         Type_Get();
@@ -164,7 +166,6 @@ public:
     typedef std::string StringStatsKey;
 
     void initializeAdditionalStats();
-    void updateAdditionalStats(StatsValueInfo::Type type, size_t oldSize, size_t size);
     void processAdditionalStats(const char* key, const char* value, bool statsMapInitialized);
     void writeAdditionalStats(std::stringstream& stream, size_t index);
 
@@ -183,7 +184,6 @@ protected:
 
     // Info
     double                      Frequency;
-    int							streamIndex;
 
     // Memory management
     size_t                      Data_Reserved; // Count of frames reserved in memory;
@@ -198,6 +198,12 @@ protected:
     int**                       additionalIntStats;
     double**                    additionalDoubleStats;
     char***                     additionalStringStats;
+
+    // Thread synchronisation
+    QMutex                       Mutex;
+
+    // Internal functions
+    void updateAdditionalStats(StatsValueInfo::Type type, size_t oldSize, size_t size);
 };
 
 #endif // Stats_H
