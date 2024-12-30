@@ -3,7 +3,10 @@
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
-export QT_SELECT=qt6
+export QWT_STATIC=1
+export QWT_NO_SVG=1
+export QWT_NO_OPENGL=1
+export QWT_NO_DESIGNER=1
 
 configure: configure-stamp
 configure-stamp:
@@ -21,11 +24,11 @@ build-stamp: configure-stamp
 	cd ffmpeg && ./configure --enable-gpl --enable-version3 --disable-autodetect --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --enable-libharfbuzz
 	cd ffmpeg && $(MAKE)
 	
-	cd qwt && QWT_STATIC=1 QWT_NO_SVG=1 QWT_NO_OPENGL=1 QWT_NO_DESIGNER=1 qmake
+	cd qwt && qmake6
 	cd qwt && $(MAKE)
 
 	mkdir qctools/Project/QtCreator/build
-	cd qctools/Project/QtCreator/build && qmake DEFINES+=QT_AVPLAYER_MULTIMEDIA ..
+	cd qctools/Project/QtCreator/build && qmake6 DEFINES+=QT_AVPLAYER_MULTIMEDIA ..
 	cd qctools/Project/QtCreator/build && $(MAKE)
 
 	touch $@
