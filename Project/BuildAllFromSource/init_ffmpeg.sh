@@ -25,15 +25,17 @@ if [ ! -d harfbuzz ] ; then
     mv harfbuzz-8.2.2 harfbuzz
 fi
 
+export PKG_CONFIG_PATH=$PWD/output/lib/pkgconfig
+if sw_vers >/dev/null 2>&1 ; then
+export CFLAGS="-mmacosx-version-min=11.0"
+export CXXFLAGS="-mmacosx-version-min=11.0"
+export LDFLAGS="-mmacosx-version-min=11.0"
+fi
+
 cd freetype
 mkdir build
 cd build
-if sw_vers >/dev/null 2>&1 ; then
-CFLAGS="-mmacosx-version-min=11.0" CXXFLAGS="-mmacosx-version-min=11.0" LDFLAGS="-mmacosx-version-min=11.0" meson setup --prefix $(pwd)/../usr --default-library=static -Dzlib=disabled -Dbzip2=disabled -Dpng=disabled -Dharfbuzz=disabled -Dbrotli=disabled ..
-else
-meson setup --prefix $(pwd)/../usr --default-library=static -Dzlib=disabled -Dbzip2=disabled -Dpng=disabled -Dharfbuzz=disabled -Dbrotli=disabled ..
-fi
-ninja
+meson setup --prefix $PWD/../../output --default-library=static -Dzlib=disabled -Dbzip2=disabled -Dpng=disabled -Dharfbuzz=disabled -Dbrotli=disabled ..
 ninja install
 cd ..
 cd ..
@@ -41,20 +43,15 @@ cd ..
 cd harfbuzz
 mkdir build
 cd build
-if sw_vers >/dev/null 2>&1 ; then
-PKG_CONFIG_PATH="$PWD/../../freetype/usr/lib/pkgconfig" CFLAGS="-mmacosx-version-min=11.0" CXXFLAGS="-mmacosx-version-min=11.0" LDFLAGS="-mmacosx-version-min=11.0" meson setup --prefix $(pwd)/../usr --default-library=static -Dglib=disabled -Dgobject=disabled -Dcairo=disabled -Dchafa=disabled -Dicu=disabled -Dgraphite=disabled -Dgraphite2=disabled -Dgdi=disabled -Ddirectwrite=disabled -Dcoretext=disabled -Dwasm=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Ddoc_tests=false -Dutilities=disabled ..
-else
-PKG_CONFIG_PATH=$PWD/../../freetype/usr/lib/pkgconfig meson setup --prefix $(pwd)/../usr --default-library=static -Dglib=disabled -Dgobject=disabled -Dcairo=disabled -Dchafa=disabled -Dicu=disabled -Dgraphite=disabled -Dgraphite2=disabled -Dgdi=disabled -Ddirectwrite=disabled -Dcoretext=disabled -Dwasm=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Ddoc_tests=false -Dutilities=disabled ..
-fi
-ninja
+meson setup --prefix $PWD/../../output --default-library=static -Dglib=disabled -Dgobject=disabled -Dcairo=disabled -Dchafa=disabled -Dicu=disabled -Dgraphite=disabled -Dgraphite2=disabled -Dgdi=disabled -Ddirectwrite=disabled -Dcoretext=disabled -Dwasm=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Ddoc_tests=false -Dutilities=disabled ..
 ninja install
 cd ..
 cd ..
 
 cd ffmpeg
-FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-autodetect --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$(pwd)" --enable-libfreetype --enable-libharfbuzz --extra-cflags="-I../freetype/usr/include/freetype2" --extra-cflags="-I../harfbuzz/usr/include/harfbuzz" --extra-libs="../freetype/usr/lib/libfreetype.a" --extra-libs="../harfbuzz/usr/lib/libharfbuzz.a")
+FFMPEG_CONFIGURE_OPTS=(--enable-gpl --enable-version3 --disable-autodetect --disable-programs --disable-securetransport --disable-videotoolbox --enable-static --disable-shared --disable-doc --disable-debug --disable-lzma --disable-iconv --enable-pic --prefix="$PWD" --enable-libfreetype --enable-libharfbuzz)
 if sw_vers >/dev/null 2>&1 ; then
-    FFMPEG_CONFIGURE_OPTS+=(--extra-cflags="-mmacosx-version-min=10.12" --extra-ldflags="-mmacosx-version-min=11.0")
+    FFMPEG_CONFIGURE_OPTS+=(--extra-cflags="-mmacosx-version-min=11.0" --extra-ldflags="-mmacosx-version-min=11.0")
 fi
 
 chmod u+x configure

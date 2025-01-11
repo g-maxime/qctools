@@ -75,8 +75,10 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
                      -L$$FFMPEG_AVUTIL -lavutil
     }
 
-    FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../harfbuzz/usr/lib) -lharfbuzz
-    FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../freetype/usr/lib) -lfreetype
+    contains(STATIC, yes|1) {
+        FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../output/lib) -lharfbuzz
+        FFMPEG_LIBS += -L$$absolute_path($$FFMPEG/../output/lib) -lfreetype
+    }
     unix:!mac:FFMPEG_LIBS += -lxcb -lxcb-shm -lxcb-xfixes -lxcb-render -lxcb-shape
 
     INCLUDEPATH += $$FFMPEG_INCLUDES
