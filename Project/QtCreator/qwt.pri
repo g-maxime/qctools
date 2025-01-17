@@ -30,6 +30,7 @@ macx:!isEmpty(USE_BREW):equals(USE_BREW, true) {
     else: LIBS += -L$${QWT_ROOT}/lib -lqwt
 
     INCLUDEPATH += $$QWT_ROOT/src
+    INCLUDEPATH += $$QWT_ROOT/include
 
     # copy qwt
     if(equals(MAKEFILE_GENERATOR, MSVC.NET)|equals(MAKEFILE_GENERATOR, MSBUILD)) {
