@@ -222,7 +222,7 @@ mkdir qctools/Project/QtCreator/build
 pushd qctools/Project/QtCreator/build
 (
     export QWT_ROOT=$INSTALL_DIR/output FFMPEG=$INSTALL_DIR/output
-    $BINQMAKE "${QT_CONFIGURE_OPTS[@]}" STATIC=1 ..
+    $BINQMAKE "${QT_CONFIGURE_OPTS[@]}" STATIC=1 MACSTORE=1 ..
     make
 )
 popd
