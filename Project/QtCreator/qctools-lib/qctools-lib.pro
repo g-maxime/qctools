@@ -74,7 +74,5 @@ include($$SOURCES_PATH/ThirdParty/qblowfish/qblowfish.pri)
 RESOURCES += \
     $$SOURCES_PATH/Core/coreresources.qrc
 
-QTAVPLAYER_SRC=$$absolute_path(../qctools-QtAVPlayer)
-QTAVPLAYER_LIB=$$absolute_path($$OUT_PWD/../qctools-QtAVPlayer)
-
-INCLUDEPATH += $$absolute_path($$QTAVPLAYER_SRC/src) $$absolute_path($$QTAVPLAYER_SRC/src/QtAVPlayer)
+INCLUDEPATH += ../qctools-QtAVPlayer/src ../qctools-QtAVPlayer/src/QtAVPlayer
+include(../qctools-QtAVPlayer/src/QtAVPlayer/QtAVPlayer.pri)
