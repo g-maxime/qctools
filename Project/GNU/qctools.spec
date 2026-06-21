@@ -112,10 +112,13 @@ popd
 pushd qctools
     chmod 644 History.txt
     chmod 644 License.html
-    mkdir Project/QtCreator/build
-    pushd Project/QtCreator/build
-    qmake6 .. -after CONFIG+=force_debug_info LIBS+=-lharfbuzz LIBS+=-lfreetype
-    %__make %{?jobs:-j%{jobs}}
+    pushd Project/QtCreator
+        patch -p1 < ../BuildAllFromSource/qtavplayer-pktinfo.patch
+        mkdir build
+        pushd build
+            qmake6 .. -after CONFIG+=force_debug_info LIBS+=-lharfbuzz LIBS+=-lfreetype
+            %__make %{?jobs:-j%{jobs}}
+        popd
     popd
 popd
 

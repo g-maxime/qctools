@@ -106,7 +106,6 @@ Section "SectionPrincipale" SEC01
     File "..\..\..\output\bin\avfilter-*.dll"
     File "..\..\..\output\bin\avformat-*.dll"
     File "..\..\..\output\bin\avutil-*.dll"
-    File "..\..\..\output\bin\postproc-*.dll"
     File "..\..\..\output\bin\swresample-*.dll"
     File "..\..\..\output\bin\swscale-*.dll"
     File "..\..\..\output\bin\freetype-*.dll"
@@ -196,7 +195,6 @@ Section Uninstall
   Delete "$INSTDIR\avfilter-*.dll"
   Delete "$INSTDIR\avformat-*.dll"
   Delete "$INSTDIR\avutil-*.dll"
-  Delete "$INSTDIR\postproc-*.dll"
   Delete "$INSTDIR\swresample-*.dll"
   Delete "$INSTDIR\swscale-*.dll"
   Delete "$INSTDIR\freetype-*.dll"
@@ -245,6 +243,7 @@ Section Uninstall
   RMDir  "$INSTDIR"
   Delete "$SMPROGRAMS\QCTools.lnk"
   ; Olds
+  Delete "$INSTDIR\postproc-*.dll"
   Delete "$INSTDIR\QtAVPlayer.dll"
   Delete "$INSTDIR\Qt5Core.dll"
   Delete "$INSTDIR\Qt5Gui.dll"
