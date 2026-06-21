@@ -185,7 +185,6 @@ pushd ffmpeg/build
         lipo -create $INSTALL_DIR/output/x86_64/lib/libavfilter.a $INSTALL_DIR/output/arm64/lib/libavfilter.a -output $INSTALL_DIR/output/lib/libavfilter.a
         lipo -create $INSTALL_DIR/output/x86_64/lib/libavformat.a $INSTALL_DIR/output/arm64/lib/libavformat.a -output $INSTALL_DIR/output/lib/libavformat.a
         lipo -create $INSTALL_DIR/output/x86_64/lib/libavutil.a $INSTALL_DIR/output/arm64/lib/libavutil.a -output $INSTALL_DIR/output/lib/libavutil.a
-        lipo -create $INSTALL_DIR/output/x86_64/lib/libpostproc.a $INSTALL_DIR/output/arm64/lib/libpostproc.a -output $INSTALL_DIR/output/lib/libpostproc.a
         lipo -create $INSTALL_DIR/output/x86_64/lib/libswresample.a $INSTALL_DIR/output/arm64/lib/libswresample.a -output $INSTALL_DIR/output/lib/libswresample.a
         lipo -create $INSTALL_DIR/output/x86_64/lib/libswscale.a $INSTALL_DIR/output/arm64/lib/libswscale.a -output $INSTALL_DIR/output/lib/libswscale.a
         cp -r $INSTALL_DIR/output/x86_64/include $INSTALL_DIR/output
@@ -221,6 +220,7 @@ fi
 mkdir qctools/Project/QtCreator/build
 pushd qctools/Project/QtCreator/build
 (
+    git -C .. apply "$SCRIPT_DIR/qtavplayer-pktinfo.patch"
     export QWT_ROOT=$INSTALL_DIR/output FFMPEG=$INSTALL_DIR/output
     $BINQMAKE "${QT_CONFIGURE_OPTS[@]}" STATIC=1 ..
     make

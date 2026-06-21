@@ -123,6 +123,7 @@ if (Test-Path -Path qctools\Project\QtCreator\build) {
 }
 New-Item -ItemType directory -Name qctools\Project\QtCreator\build
 Push-Location -Path qctools\Project\QtCreator\build
+    git -C .. apply "$SCRIPT_DIR\qtavplayer-pktinfo.patch" ; Cmd-Result
     $Env:QWT_ROOT="$INSTALL_DIR/output"
     $Env:FFMPEG="$INSTALL_DIR/output"
     qmake QMAKE_CXXFLAGS+=/Zi QMAKE_LFLAGS+=/INCREMENTAL:NO QMAKE_LFLAGS+=/Debug DEFINES+=QT_AVPLAYER_MULTIMEDIA .. ; Cmd-Result

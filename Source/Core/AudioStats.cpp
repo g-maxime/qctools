@@ -12,6 +12,7 @@
 //---------------------------------------------------------------------------
 extern "C"
 {
+#include <libavutil/buffer.h>
 #include <libavutil/frame.h>
 #include <libavutil/version.h>
 #include <libavformat/avformat.h>
@@ -27,6 +28,16 @@ extern "C"
 #include <tinyxml2.h>
 using namespace tinyxml2;
 //---------------------------------------------------------------------------
+
+namespace {
+
+struct PacketInfo
+{
+    int64_t pkt_pos = 0;
+    int pkt_size = 0;
+};
+
+}
 
 //***************************************************************************
 // Constructor / Destructor
@@ -238,10 +249,21 @@ void AudioStats::StatsFromFrame (const QAVFrame& frame, int, int)
         initializeAdditionalStats();
     }
 
-    key_frames[x_Current]=Frame->key_frame?true:false;
+    key_frames[x_Current] = (Frame->flags & AV_FRAME_FLAG_KEY) != 0;
 
+#if LIBAVUTIL_VERSION_MAJOR < 60
     pkt_pos[x_Current] = Frame->pkt_pos;
     pkt_size[x_Current] = Frame->pkt_size;
+#else
+    pkt_pos[x_Current] = 0;
+    pkt_size[x_Current] = 0;
+    if (Frame->opaque_ref && Frame->opaque_ref->data)
+    {
+        const auto* info = reinterpret_cast<const PacketInfo*>(Frame->opaque_ref->data);
+        pkt_pos[x_Current] = info->pkt_pos;
+        pkt_size[x_Current] = info->pkt_size;
+    }
+#endif
     pkt_pts[x_Current] = Frame->pts;
 
     if (x_Max[0]<=x[0][x_Current])
