@@ -8,10 +8,10 @@ jobs:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++' }
 
     runs-on: macos-latest
@@ -57,6 +57,7 @@ jobs:
         USE_BREW: true
       run: |
         cd Project/QtCreator
+        sed -i '' 's/std::atomic_bool abortRequest = false;/std::atomic_bool abortRequest{false};/g' qctools-QtAVPlayer/src/QtAVPlayer/qavdemuxer.cpp || true # temporary fix
         mkdir build
         cd build
         export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@8/lib/pkgconfig"
@@ -67,10 +68,10 @@ jobs:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++', 'HOMEBREW_NO_INSTALL_CLEANUP': '1', 'HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK': '1' }
 
     runs-on: macos-latest
@@ -113,6 +114,7 @@ jobs:
         USE_BREW: true
       run: |
         cd Project/QtCreator
+        sed -i '' 's/#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)/#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)/g' qctools-QtAVPlayer/src/QtAVPlayer/qavvideoframe.cpp || true # temporary fix
         mkdir build
         cd build
         export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@6/lib/pkgconfig"
@@ -123,10 +125,10 @@ jobs:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++' }
           - qt_version: "5.15.*"
 
@@ -199,21 +201,22 @@ jobs:
         USE_BREW: false
       run: |
         cd Project/QtCreator
+        sed -i '' 's/std::atomic_bool abortRequest = false;/std::atomic_bool abortRequest{false};/g' qctools-QtAVPlayer/src/QtAVPlayer/qavdemuxer.cpp || true # temporary fix
         mkdir build
         cd build
-        qmake .. 
+        qmake ..
         make CC=$CC CXX=$CXX -j4
 
   build-macos-no-brew-Qt6:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++', 'HOMEBREW_NO_INSTALL_CLEANUP': '1', 'HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK': '1' }
-          - qt_version: "6.5.*"
+          - qt_version: "6.8.*"
             qt_modules: "qtmultimedia"
 
     runs-on: macos-latest
@@ -253,7 +256,7 @@ jobs:
       run: |
         git clone --branch qwt-6.3 --depth 1 https://git.code.sf.net/p/qwt/git ../qwt
         cd ../qwt
-        qmake -r
+        qmake -r "QMAKE_CXXFLAGS+=-include arm_acle.h"
         make CC=$CC CXX=$CXX -j4
 
     - name: Build FFmpeg
@@ -373,7 +376,7 @@ jobs:
           - compiler: gcc-9
             packages: gcc-9 g++-9 libbz2-dev
             env: { 'CC': 'gcc-9', 'CXX': 'g++-9' }
-          - qt_version: "6.5.*"
+          - qt_version: "6.6.*"
             qt_modules: "qtmultimedia qt5compat"
             qt_packages: "libxkbcommon-dev libgstreamer-plugins-base1.0-0 libgstreamer-gl1.0-0"
 
@@ -533,7 +536,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: "6.3.0"
+          - qt_version: "6.6.*"
             qt_modules: "qtmultimedia qt5compat"
 
     runs-on: windows-latest
@@ -617,7 +620,7 @@ jobs:
       matrix:
         qt_version: ["5.15.*"]
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v2
@@ -686,7 +689,7 @@ jobs:
       shell: cmd
       run: |
         cd Project/QtCreator
-        qmake
+        qmake QMAKE_CFLAGS+=/utf-8 QMAKE_CXXFLAGS+=/utf-8
 
     - name: Build QCTools
       shell: cmd
@@ -699,7 +702,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: "6.3.0"
+          - qt_version: "6.6.*"
             qt_modules: "qtmultimedia qt5compat"
 
     runs-on: windows-latest

@@ -78,3 +78,4 @@ QTAVPLAYER_SRC=$$absolute_path(../qctools-QtAVPlayer)
 QTAVPLAYER_LIB=$$absolute_path($$OUT_PWD/../qctools-QtAVPlayer)
 
 INCLUDEPATH += $$absolute_path($$QTAVPLAYER_SRC/src) $$absolute_path($$QTAVPLAYER_SRC/src/QtAVPlayer)
+include($$QTAVPLAYER_SRC/src/QtAVPlayer/QtAVPlayer.pri)
