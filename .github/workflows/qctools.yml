@@ -19,9 +19,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -79,9 +79,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -137,9 +137,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -224,9 +224,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -256,6 +256,8 @@ jobs:
       run: |
         git clone --branch qwt-6.3 --depth 1 https://git.code.sf.net/p/qwt/git ../qwt
         cd ../qwt
+        sed -i '' 's/^QWT_CONFIG     += QwtOpenGL$/QWT_CONFIG     -= QwtOpenGL/g' qwtconfig.pri
+        cat qwtconfig.pri
         qmake -r "QMAKE_CXXFLAGS+=-include arm_acle.h"
         make CC=$CC CXX=$CXX -j4
 
@@ -302,9 +304,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
     - name: Checkout submodules
       shell: bash
       run: |
@@ -385,9 +387,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
     - name: Checkout submodules
       shell: bash
       run: |
@@ -460,9 +462,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -542,9 +544,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -623,9 +625,9 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -708,9 +710,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash

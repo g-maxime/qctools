@@ -106,7 +106,7 @@ QWT_CONFIG     += QwtSvg
 # If you want to use a OpenGL plot canvas
 ######################################################################
 
-QWT_CONFIG     -= QwtOpenGL
+QWT_CONFIG     += QwtOpenGL
 
 ######################################################################
 # If you want to build the Qwt designer plugin,
@@ -164,7 +164,7 @@ QWT_CONFIG     -= QwtTests
 
 macx:!static:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 
-    QWT_CONFIG -= QwtFramework
+    QWT_CONFIG += QwtFramework
 }
 
 ######################################################################
