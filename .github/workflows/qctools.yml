@@ -8,10 +8,10 @@ jobs:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++' }
 
     runs-on: macos-latest
@@ -19,9 +19,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -35,7 +35,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install ${{ matrix.packages }} pkg-config ffmpeg@6 qt@5
+        brew install ${{ matrix.packages }} pkg-config ffmpeg@8 qt@5
 
     - name: Install qwt-qt5
       run: |
@@ -57,9 +57,10 @@ jobs:
         USE_BREW: true
       run: |
         cd Project/QtCreator
+        sed -i '' 's/std::atomic_bool abortRequest = false;/std::atomic_bool abortRequest{false};/g' qctools-QtAVPlayer/src/QtAVPlayer/qavdemuxer.cpp || true # temporary fix
         mkdir build
         cd build
-        export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@6/lib/pkgconfig"
+        export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@8/lib/pkgconfig"
         qmake ..
         make CC=$CC CXX=$CXX -j4
 
@@ -67,10 +68,10 @@ jobs:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++', 'HOMEBREW_NO_INSTALL_CLEANUP': '1', 'HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK': '1' }
 
     runs-on: macos-latest
@@ -78,9 +79,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -113,6 +114,7 @@ jobs:
         USE_BREW: true
       run: |
         cd Project/QtCreator
+        sed -i '' 's/#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)/#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)/g' qctools-QtAVPlayer/src/QtAVPlayer/qavvideoframe.cpp || true # temporary fix
         mkdir build
         cd build
         export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@6/lib/pkgconfig"
@@ -123,10 +125,10 @@ jobs:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++' }
           - qt_version: "5.15.*"
 
@@ -135,9 +137,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -180,7 +182,7 @@ jobs:
 
     - name: Build FFmpeg
       run: |
-        git clone --depth 1 --branch n6.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
+        git clone --depth 1 --branch n8.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
         cd ../ffmpeg
         ./configure --enable-gpl \
                     --enable-static \
@@ -199,21 +201,22 @@ jobs:
         USE_BREW: false
       run: |
         cd Project/QtCreator
+        sed -i '' 's/std::atomic_bool abortRequest = false;/std::atomic_bool abortRequest{false};/g' qctools-QtAVPlayer/src/QtAVPlayer/qavdemuxer.cpp || true # temporary fix
         mkdir build
         cd build
-        qmake .. 
+        qmake ..
         make CC=$CC CXX=$CXX -j4
 
   build-macos-no-brew-Qt6:
 
     strategy:
       matrix:
-        compiler: ['clang-9']
+        compiler: ['clang-18']
         include:
-          - compiler: clang-9
-            packages: llvm@15
+          - compiler: clang-18
+            packages: llvm@18
             env: { 'CC': 'clang', 'CXX': 'clang++', 'HOMEBREW_NO_INSTALL_CLEANUP': '1', 'HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK': '1' }
-          - qt_version: "6.5.*"
+          - qt_version: "6.8.*"
             qt_modules: "qtmultimedia"
 
     runs-on: macos-latest
@@ -221,9 +224,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -253,12 +256,14 @@ jobs:
       run: |
         git clone --branch qwt-6.3 --depth 1 https://git.code.sf.net/p/qwt/git ../qwt
         cd ../qwt
-        qmake -r
+        sed -i '' 's/^QWT_CONFIG     += QwtOpenGL$/QWT_CONFIG     -= QwtOpenGL/g' qwtconfig.pri
+        cat qwtconfig.pri
+        qmake -r "QMAKE_CXXFLAGS+=-include arm_acle.h"
         make CC=$CC CXX=$CXX -j4
 
     - name: Build FFmpeg
       run: |
-        git clone --depth 1 --branch n6.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
+        git clone --depth 1 --branch n8.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
         cd ../ffmpeg
         ./configure --enable-gpl \
                     --enable-static \
@@ -299,9 +304,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
     - name: Checkout submodules
       shell: bash
       run: |
@@ -342,7 +347,7 @@ jobs:
 
     - name: Build FFmpeg
       run: |
-        git clone --depth 1 --branch n6.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
+        git clone --depth 1 --branch n8.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
         cd ../ffmpeg
         ./configure --enable-gpl \
                     --enable-shared \
@@ -373,7 +378,7 @@ jobs:
           - compiler: gcc-9
             packages: gcc-9 g++-9 libbz2-dev
             env: { 'CC': 'gcc-9', 'CXX': 'g++-9' }
-          - qt_version: "6.5.*"
+          - qt_version: "6.6.*"
             qt_modules: "qtmultimedia qt5compat"
             qt_packages: "libxkbcommon-dev libgstreamer-plugins-base1.0-0 libgstreamer-gl1.0-0"
 
@@ -382,9 +387,9 @@ jobs:
     env: ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
     - name: Checkout submodules
       shell: bash
       run: |
@@ -426,7 +431,7 @@ jobs:
 
     - name: Build FFmpeg
       run: |
-        git clone --depth 1 --branch n6.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
+        git clone --depth 1 --branch n8.1 https://github.com/FFmpeg/FFmpeg ../ffmpeg
         cd ../ffmpeg
         ./configure --enable-gpl \
                     --enable-shared \
@@ -457,9 +462,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -495,9 +500,9 @@ jobs:
       shell: pwsh
       run: |
         Set-Location ..
-        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/243719342)
-        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).name | sub("\\.zip$";"")')
-        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).browser_download_url')
+        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/342531362)
+        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).name | sub("\\.zip$";"")')
+        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).browser_download_url')
         Invoke-WebRequest -Uri "$ffmpeg_url" -OutFile "$ffmpeg_name.zip"
         Expand-Archive -Path "$ffmpeg_name.zip" -DestinationPath .
         Rename-Item -Path "$ffmpeg_name" -NewName "ffmpeg"
@@ -533,15 +538,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: "6.3.0"
+          - qt_version: "6.6.*"
             qt_modules: "qtmultimedia qt5compat"
 
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -578,9 +583,9 @@ jobs:
       shell: pwsh
       run: |
         Set-Location ..
-        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/243719342)
-        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).name | sub("\\.zip$";"")')
-        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).browser_download_url')
+        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/342531362)
+        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).name | sub("\\.zip$";"")')
+        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).browser_download_url')
         Invoke-WebRequest -Uri "$ffmpeg_url" -OutFile "$ffmpeg_name.zip"
         Expand-Archive -Path "$ffmpeg_name.zip" -DestinationPath .
         Rename-Item -Path "$ffmpeg_name" -NewName "ffmpeg"
@@ -617,12 +622,12 @@ jobs:
       matrix:
         qt_version: ["5.15.*"]
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -662,9 +667,9 @@ jobs:
       shell: pwsh
       run: |
         Set-Location ..
-        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/243719342)
-        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).name | sub("\\.zip$";"")')
-        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).browser_download_url')
+        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/342531362)
+        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).name | sub("\\.zip$";"")')
+        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).browser_download_url')
         Invoke-WebRequest -Uri "$ffmpeg_url" -OutFile "$ffmpeg_name.zip"
         Expand-Archive -Path "$ffmpeg_name.zip" -DestinationPath .
         Rename-Item -Path "$ffmpeg_name" -NewName "ffmpeg"
@@ -686,7 +691,7 @@ jobs:
       shell: cmd
       run: |
         cd Project/QtCreator
-        qmake
+        qmake QMAKE_CFLAGS+=/utf-8 QMAKE_CXXFLAGS+=/utf-8
 
     - name: Build QCTools
       shell: cmd
@@ -699,15 +704,15 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt_version: "6.3.0"
+          - qt_version: "6.6.*"
             qt_modules: "qtmultimedia qt5compat"
 
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        fetch: 1
+        fetch-depth: 1
 
     - name: Checkout submodules
       shell: bash
@@ -749,9 +754,9 @@ jobs:
       shell: pwsh
       run: |
         Set-Location ..
-        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/243719342)
-        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).name | sub("\\.zip$";"")')
-        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-6.1.zip")).browser_download_url')
+        $json = $(curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/342531362)
+        $ffmpeg_name = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).name | sub("\\.zip$";"")')
+        $ffmpeg_url = $($json | jq -r '.assets[] | select(.name | endswith("-win64-gpl-shared-8.1.zip")).browser_download_url')
         Invoke-WebRequest -Uri "$ffmpeg_url" -OutFile "$ffmpeg_name.zip"
         Expand-Archive -Path "$ffmpeg_name.zip" -DestinationPath .
         Rename-Item -Path "$ffmpeg_name" -NewName "ffmpeg"

@@ -27,8 +27,10 @@ build() {
     cd "${srcdir}/qctools/qctools"
     chmod 644 History.txt
     chmod 644 License.html
-    mkdir Project/QtCreator/build
-    cd Project/QtCreator/build
+    cd Project/QtCreator
+    patch -p1 < ../BuildAllFromSource/qtavplayer-pktinfo.patch
+    mkdir build
+    cd build
     qmake6 -after LIBS+=-lharfbuzz LIBS+=-lfreetype ..
     make
 }

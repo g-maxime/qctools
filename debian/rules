@@ -28,6 +28,7 @@ build-stamp: configure-stamp
 	cd qwt && qmake6
 	cd qwt && $(MAKE)
 
+	cd qctools/Project/QtCreator && patch -p1 < ../BuildAllFromSource/qtavplayer-pktinfo.patch
 	mkdir qctools/Project/QtCreator/build
 	cd qctools/Project/QtCreator/build && qmake6 .. -after CONFIG+=force_debug_info LIBS+=-lharfbuzz LIBS+=-lfreetype
 	cd qctools/Project/QtCreator/build && $(MAKE)

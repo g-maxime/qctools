@@ -78,7 +78,6 @@ Push-Location "${release_directory}"
         Copy-Item -Path "${release_directory}\..\..\output\bin\avfilter-*.dll" .
         Copy-Item -Path "${release_directory}\..\..\output\bin\avformat-*.dll" .
         Copy-Item -Path "${release_directory}\..\..\output\bin\avutil-*.dll" .
-        Copy-Item -Path "${release_directory}\..\..\output\bin\postproc-*.dll" .
         Copy-Item -Path "${release_directory}\..\..\output\bin\swresample-*.dll" .
         Copy-Item -Path "${release_directory}\..\..\output\bin\swscale-*.dll" .
         Copy-Item -Path "${release_directory}\..\..\output\bin\freetype-*.dll" .
