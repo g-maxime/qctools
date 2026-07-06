@@ -19,6 +19,8 @@
 #include "draggablechildrenbehaviour.h"
 #include "SelectionArea.h"
 #include <float.h>
+#include <algorithm>
+#include <cmath>
 
 extern "C" {
 #include <libavfilter/buffersrc.h>
@@ -451,6 +453,9 @@ void Player::setFile(FileInformation *fileInfo)
 
     if(m_player->file() != fileInfo->fileName()) {
 
+        // Ignore transient positionChanged signals while a new media is loading.
+        m_ignorePositionChanges = true;
+
         if(m_fileInformation != nullptr)
             disconnect(m_fileInformation, &FileInformation::positionChanged, this, &Player::handleFileInformationPositionChanges);
 
@@ -537,9 +542,29 @@ void Player::setFile(FileInformation *fileInfo)
 
         m_mute = false;
 
+        connect(m_fileInformation, &FileInformation::positionChanged, this, &Player::handleFileInformationPositionChanges);
+
+        // Keep label/slider aligned with the exact frame requested by the caller.
+        ui->playerSlider->setValue(int(m_player->position()));
         updateInfoLabels();
 
-        connect(m_fileInformation, &FileInformation::positionChanged, this, &Player::handleFileInformationPositionChanges);
+        m_ignorePositionChanges = false;
+    } else {
+        // Re-opening the same file should still sync to the currently selected frame.
+        m_fileInformation = fileInfo;
+
+        auto ms = frameToMs(m_fileInformation->Frames_Pos_Get());
+        if(ms != m_player->position()) {
+            SignalWaiter waiter(m_player, "seeked(qint64)");
+            waiter.wait([this, ms]() {
+                playPaused(ms);
+            });
+        } else {
+            m_player->pause();
+        }
+
+        ui->playerSlider->setValue(int(m_player->position()));
+        updateInfoLabels();
     }
 }
 
@@ -1347,13 +1372,69 @@ QString Player::replaceFilterTokens(const QString &filterString)
 
 qint64 Player::frameToMs(int frame)
 {
+    if(m_fileInformation)
+    {
+         CommonStats* stat = m_fileInformation->ReferenceStat();
+        if(stat && stat->x && stat->x[1] && stat->x_Current_Max) {
+            int maxFrameIndex = int(stat->x_Current_Max) - 1;
+            if(maxFrameIndex < 0)
+                return 0;
+
+            if(frame < 0)
+                frame = 0;
+            if(frame > maxFrameIndex)
+                frame = maxFrameIndex;
+
+            return qint64(stat->x[1][frame] * 1000.0);
+        }
+    }
+
+    if(m_framesCount <= 0 || m_player->duration() <= 0)
+        return 0;
+
     auto ms = qint64(qreal(m_player->duration()) * frame / m_framesCount);
     return ms;
 }
 
 int Player::msToFrame(qint64 ms)
 {
-    auto frame = ceil(qreal(ms) * m_framesCount / m_player->duration());
+    if(m_fileInformation)
+    {
+        auto* stat = m_fileInformation->ReferenceStat();
+        if(stat && stat->x && stat->x[1] && stat->x_Current_Max) {
+            const int frameCount = int(stat->x_Current_Max);
+            if(frameCount <= 0)
+                return 0;
+
+            const double targetSec = double(ms) / 1000.0;
+            const double* first = stat->x[1];
+            const double* last = first + frameCount;
+            const double* it = std::lower_bound(first, last, targetSec);
+
+            if(it == first)
+                return 0;
+            if(it == last)
+                return frameCount - 1;
+
+            // Pick the closest timestamp so frame labels stay aligned with what is displayed.
+            int upper = int(it - first);
+            int lower = upper - 1;
+
+            double lowerDiff = std::abs(targetSec - first[lower]);
+            double upperDiff = std::abs(first[upper] - targetSec);
+            return (lowerDiff <= upperDiff) ? lower : upper;
+        }
+    }
+
+    if(m_framesCount <= 0 || m_player->duration() <= 0)
+        return 0;
+
+    int frame = int(std::llround(qreal(ms) * m_framesCount / m_player->duration()));
+    if(frame < 0)
+        frame = 0;
+    if(frame >= m_framesCount)
+        frame = m_framesCount - 1;
+
     return frame;
 }
 
