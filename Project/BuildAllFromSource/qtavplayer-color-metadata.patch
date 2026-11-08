@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Maxime Gervais <gervais.maxime@gmail.com>
+Date: Sun, 8 Nov 2026 22:30:00 +0100
+Subject: [PATCH] Pass video color metadata to filter input buffers
+
+Configure buffersrc with the frame's color space and range, falling back
+to the stream metadata. FFmpeg 9 checks these properties when frames are
+submitted, so leaving them unspecified causes an unnecessary graph
+reconfiguration and may assert in buffersink.
+
+Also copy the new fields when input filters are copied and consider
+unspecified frame metadata compatible with the configured values.
+---
+ qctools-QtAVPlayer/src/QtAVPlayer/qavvideoinputfilter.cpp | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/qctools-QtAVPlayer/src/QtAVPlayer/qavvideoinputfilter.cpp b/qctools-QtAVPlayer/src/QtAVPlayer/qavvideoinputfilter.cpp
+index a82e7a7..437365e 100644
+--- a/qctools-QtAVPlayer/src/QtAVPlayer/qavvideoinputfilter.cpp
++++ b/qctools-QtAVPlayer/src/QtAVPlayer/qavvideoinputfilter.cpp
+@@ -35,6 +35,8 @@ public:
+     AVRational time_base{};
+     AVRational frame_rate{};
+     AVBufferRef *hw_frames_ctx = nullptr;
+     bool autoDownloadHWFrames = false;
++    AVColorSpace color_space = AVCOL_SPC_UNSPECIFIED;
++    AVColorRange color_range = AVCOL_RANGE_UNSPECIFIED;
+ };
+ 
+@@ -66,6 +68,8 @@ QAVVideoInputFilter::QAVVideoInputFilter(const QAVFrame &frame, bool autoDownloadHWFrames)
+     d->sample_aspect_ratio = frm->sample_aspect_ratio.num && frm->sample_aspect_ratio.den ? frm->sample_aspect_ratio : stream->codecpar->sample_aspect_ratio;
+     d->time_base = stream->time_base;
+     d->frame_rate = stream->avg_frame_rate;
++    d->color_space = frm->colorspace != AVCOL_SPC_UNSPECIFIED ? frm->colorspace : stream->codecpar->color_space;
++    d->color_range = frm->color_range != AVCOL_RANGE_UNSPECIFIED ? frm->color_range : stream->codecpar->color_range;
+     d->hw_frames_ctx = frm->hw_frames_ctx;
+ }
+ 
+@@ -87,8 +91,10 @@ QAVVideoInputFilter &QAVVideoInputFilter::operator=(const QAVVideoInputFilter &o
+     d->sample_aspect_ratio = other.d_func()->sample_aspect_ratio;
+     d->time_base = other.d_func()->time_base;
+     d->frame_rate = other.d_func()->frame_rate;
++    d->color_space = other.d_func()->color_space;
++    d->color_range = other.d_func()->color_range;
+     d->hw_frames_ctx = other.d_func()->hw_frames_ctx;
+     d->autoDownloadHWFrames = other.d_func()->autoDownloadHWFrames;
+     return *this;
+ }
+ 
+@@ -114,6 +120,8 @@ int QAVVideoInputFilter::configure(AVFilterGraph *graph, AVFilterInOut *in)
+     par->height              = d->height;
+     par->sample_aspect_ratio = d->sample_aspect_ratio.den > 0 ?
+                                d->sample_aspect_ratio : AVRational{ 0, 1 };
++    par->color_space         = d->color_space;
++    par->color_range         = d->color_range;
+     par->hw_frames_ctx       = d->hw_frames_ctx;
+ 
+     auto ret = av_buffersrc_parameters_set(d->ctx, par);
+@@ -195,7 +203,9 @@ bool QAVVideoInputFilter::supports(const QAVFrame &frame) const
+     const auto & frm = frame.frame();
+     return d->width == frm->width
+            && d->height == frm->height
+-           && d->format == frm->format;
++           && d->format == frm->format
++           && (frm->colorspace == AVCOL_SPC_UNSPECIFIED || d->color_space == frm->colorspace)
++           && (frm->color_range == AVCOL_RANGE_UNSPECIFIED || d->color_range == frm->color_range);
+ }
+ 
+ QT_END_NAMESPACE
+-- 
+2.56.0
+
