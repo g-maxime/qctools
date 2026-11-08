@@ -109,9 +109,7 @@ pushd qctools
     pushd Project/QtCreator
         patch -p1 < ../BuildAllFromSource/qtavplayer-pktinfo.patch
         patch -p1 < ../BuildAllFromSource/qtavplayer-hwframe.patch
-        patch -p1 < ../BuildAllFromSource/qtavplayer-vulkan-texture-guard.patch
         patch -p1 < ../BuildAllFromSource/qtavplayer-ffmpeg-ma.patch
-        patch -p1 < ../BuildAllFromSource/qtavplayer-color-metadata.patch
         mkdir build
         pushd build
             qmake6 FFMPEG_USE_SYSTEM=true FFMPEG_LIBRARY_SUFFIX=-ma .. -after CONFIG+=force_debug_info LIBS+=-lharfbuzz LIBS+=-lfreetype

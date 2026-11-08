@@ -26,9 +26,7 @@ build() {
     cd Project/QtCreator
     patch -p1 < ../BuildAllFromSource/qtavplayer-pktinfo.patch
     patch -p1 < ../BuildAllFromSource/qtavplayer-hwframe.patch
-    patch -p1 < ../BuildAllFromSource/qtavplayer-vulkan-texture-guard.patch
     patch -p1 < ../BuildAllFromSource/qtavplayer-ffmpeg-ma.patch
-    patch -p1 < ../BuildAllFromSource/qtavplayer-color-metadata.patch
     mkdir build
     cd build
     qmake6 FFMPEG_USE_SYSTEM=true FFMPEG_LIBRARY_SUFFIX=-ma -after LIBS+=-lharfbuzz LIBS+=-lfreetype ..

@@ -194,9 +194,7 @@ pushd qctools/Project/QtCreator/build
 (
     git -C .. apply "$SCRIPT_DIR/qtavplayer-pktinfo.patch"
     git -C .. apply "$SCRIPT_DIR/qtavplayer-hwframe.patch"
-    git -C .. apply "$SCRIPT_DIR/qtavplayer-vulkan-texture-guard.patch"
     git -C .. apply "$SCRIPT_DIR/qtavplayer-ffmpeg-ma.patch"
-    git -C .. apply "$SCRIPT_DIR/qtavplayer-color-metadata.patch"
     QMAKE_OPTS=("${QT_CONFIGURE_OPTS[@]}" STATIC=1)
     if [[ "$OS" == "mac" ]] ; then
         export FFMPEG="$FFMPEG_DIR"

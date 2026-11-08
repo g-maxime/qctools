@@ -27,7 +27,6 @@ build-stamp: configure-stamp
 	cd qctools/Project/QtCreator && patch -p1 < ../BuildAllFromSource/qtavplayer-pktinfo.patch
 	cd qctools/Project/QtCreator && patch -p1 < ../BuildAllFromSource/qtavplayer-hwframe.patch
 	cd qctools/Project/QtCreator && patch -p1 < ../BuildAllFromSource/qtavplayer-ffmpeg-ma.patch
-	cd qctools/Project/QtCreator && patch -p1 < ../BuildAllFromSource/qtavplayer-color-metadata.patch
 	mkdir qctools/Project/QtCreator/build
 	cd qctools/Project/QtCreator/build && qmake6 FFMPEG_USE_SYSTEM=true FFMPEG_LIBRARY_SUFFIX=-ma .. -after CONFIG+=force_debug_info LIBS+=-lharfbuzz LIBS+=-lfreetype
 	cd qctools/Project/QtCreator/build && $(MAKE)
